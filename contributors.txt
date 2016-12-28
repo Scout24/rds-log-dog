@@ -1,2 +1,2 @@
 felix borchers (h1f1x)
-michael waldeck (mwaldeck)
+michael waldeck (mwaldeck) over ssh
