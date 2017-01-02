@@ -17,4 +17,4 @@ foo
 
 How do I use it?
 ================
-bar
+usage by CloudWatch schedule
