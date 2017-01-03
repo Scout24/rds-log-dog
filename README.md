@@ -1,4 +1,4 @@
-rds_log_dog
+rds-log-dog
 ===========
 
 rds-log-dog is a tool to automatically feed your AWS RDS logfiles into your monitoring solutions.
@@ -22,4 +22,23 @@ How do I use it?
 ================
 
 Run the script: deploy_all.sh
+
+How to contribute ?
+===================
+
+Clone the project with: 
+    git clone git@github.com:ImmobilienScout24/rds-log-dog.git
+
+We recommend installing PyBuilder in a [virtual environment](https://virtualenv.pypa.io/en/stable/):
+    pip install virtualenv
+    cd rds-log-dog
+    virtualenv .venv
+    source .venv/bin/activate
+
+Install pybuilder & dependencies:
+    pip install pybuilder
+    pyb install_dependencies
+
+Now you can build and run tests with:
+    pyb 
 
