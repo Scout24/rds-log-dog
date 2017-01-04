@@ -1,8 +1,8 @@
 rds-log-dog
 ===========
 
-rds-log-dog is a tool to automatically feed your AWS RDS logfiles into your monitoring solutions.
-It should reduce the manual effort in accesing the log files from your RDS intances.
+rds-log-dog is a tool to automatically feed your [https://aws.amazon.com/de/rds/](AWS RDS) logfiles into your monitoring solutions.
+It should reduce the manual effort in accessing the log files from your RDS intances.
 You can now define, how long you want to store your database logfiles (in s3).
 
 
@@ -18,18 +18,23 @@ The logfiles of your AWS RDS instances will be automatically stored in a s3 buck
 From there you can feed the logfiles into you kibana or other monitoring/logging solutions.
 
 
+How to install it?
+================
+Run the script: deploy_all.sh
+
 How do I use it?
 ================
 
-Run the script: deploy_all.sh
 
 How to contribute ?
 ===================
 
 Clone the project with: 
+
     git clone git@github.com:ImmobilienScout24/rds-log-dog.git
 
 We recommend installing PyBuilder in a [virtual environment](https://virtualenv.pypa.io/en/stable/):
+
     pip install virtualenv
     cd rds-log-dog
     virtualenv .venv
