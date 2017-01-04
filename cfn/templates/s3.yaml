@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: RDS Log Dog destination rds logs bucket
+
+Resources:
+    bucket:
+        Type: AWS::S3::Bucket
+
+Outputs:
+    name:
+        Value: '|Ref|bucket'
+        Description: name of destination log bucket
+

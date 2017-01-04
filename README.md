@@ -21,7 +21,13 @@ From there you can feed the logfiles into you ELK stack or other monitoring/logg
 How to install it?
 ================
 
-Run the script: deploy_all.sh
+Run the script: 
+
+    ./deploy_all.sh
+
+If you want only to install or update the infrastructure (policies, s3 bucket), run:
+
+    ./deploy_infrastructure.sh
 
 How do I use it?
 ================
