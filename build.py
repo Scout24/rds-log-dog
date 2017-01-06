@@ -14,4 +14,4 @@ default_task = "publish"
 
 @init
 def set_properties(project):
-    pass
+    project.set_property('bucket_prefix', 'dist/')
