@@ -12,6 +12,8 @@ set -o nounset
 # check preconditions
 command -v cf >/dev/null 2>&1 || { echo >&2 "I require cfn-sphere but it's not installed. Install with: pip install cfn-sphere. Aborting."; exit 1; }
 
+command -v jq >/dev/null 2>&1 || { echo >&2 "I require jq but it's not installed. Install with: apt-get install jq . (or on mac: brew install jq). Aborting."; exit 1; }
+
 DST_BUCKET_STACK_NAME="${DST_BUCKET_STACK_NAME:-rds-log-dog-s3}"
 STACK_TEMPLATE_NAME="${STACK_NAME:-rds-log-dog-lambda.yaml}"
 
