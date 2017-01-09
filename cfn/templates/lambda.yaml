@@ -45,7 +45,7 @@ Resources:
       Environment:
         Variables:
           dstBucket: '|ref|s3bucket'
-      Handler: handler
+      Handler: "test_lambda.handler"
       #KmsKeyArn: String
       Role: '|GetAtt|lambdaRole|Arn'
       Runtime: python2.7
