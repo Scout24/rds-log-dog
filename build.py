@@ -11,7 +11,7 @@ use_plugin('pypi:pybuilder_aws_plugin')
 
 name = "rds_log_dog"
 default_task = "publish"
-#version = 0
+version = "0.1"
 
 @init
 def set_properties(project):
