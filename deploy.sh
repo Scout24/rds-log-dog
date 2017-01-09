@@ -16,7 +16,7 @@ show_developer_hints() {
   export DST_BUCKET_STACK_NAME=rds-log-dog-s3-${USER:0:3}
   export FUNCTION_STACK_TEMPLATE_NAME=rds-log-dog-lambda-${USER:0:3}.yaml
   export FUNCTION_STACK_NAME=rds-log-dog-lambda-${USER:0:3}
-  export BUILD_NUMBER="${USER:0:3}-$(date +%s)"; ./deploy.sh -ci -v
+  export BUILD_NUMBER="\${USER:0:3}-\$(date +%s)"; ./deploy.sh -ci -v
 HELP
 }
 
@@ -71,7 +71,7 @@ done
 
 shift $((OPTIND-1))
 
-if [ ${DEPLOY_INFRASTRUCTURE} == false ] && [ ${DEPLOY_CODE} == false ]; then
+if [ ${DEPLOY_INFRASTRUCTURE} == false ] && [ ${DEPLOY_CODE} == false ] && [ ${cleanup} == false ]; then
     show_help
     exit 0
 fi
