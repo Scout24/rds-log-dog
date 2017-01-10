@@ -21,13 +21,13 @@ From there you can feed the logfiles into you ELK stack or other monitoring/logg
 How to install it?
 ================
 
-Run the script: 
+Run the script, there will be a help: 
 
-    ./deploy_all.sh
+    ./deploy.sh
 
-If you want only to install or update the infrastructure (policies, s3 bucket), run:
+If you want to install or update the infrastructure (policies, s3 bucket) and the lambda code, run:
 
-    ./deploy_infrastructure.sh
+    ./deploy.sh -ic
 
 How do I use it?
 ================
@@ -51,8 +51,17 @@ Install pybuilder & dependencies:
     pip install pybuilder
     pyb install_dependencies
 
-Now you can build and run tests with:
+Now you can (locally) build and run tests with:
+
     pyb 
+
+If you want to test it in your account, try to execute:
+
+    ./deploy.sh -ci -v
+
+To do integration tests, you need to advance BUILD_NUMBER in order to deploy a new lambda version with your code. You will get a hint:
+
+    ./deploy.sh -h
 
 License
 =======
