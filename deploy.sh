@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# 
+#
 # build, test and deploy
 #
 
@@ -9,10 +9,10 @@
 # - change the stack names (e.g. add your username)
 # - provide a BUILD_NUMBER (see below in script)
 # - call this script with:
-# $> 
+# $>
 show_developer_hints() {
   cat << HELP
-  export MAIN_STACK_TEMPLATE_NAME=rds-log-dog-${USER:0:3}.yaml 
+  export MAIN_STACK_TEMPLATE_NAME=rds-log-dog-${USER:0:3}.yaml
   export DST_BUCKET_STACK_NAME=rds-log-dog-s3-${USER:0:3}
   export FUNCTION_STACK_TEMPLATE_NAME=rds-log-dog-lambda-${USER:0:3}.yaml
   export FUNCTION_STACK_NAME=rds-log-dog-lambda-${USER:0:3}
@@ -36,8 +36,8 @@ Usage: ${0##*/} [-hv] [-ci]
     -d          delete needed enviroment variables. cleanup. defaults are used.
     -h          display this help and exit
     -i          deploy infrastructure. Can be used with -c too.
-    -v          verbose mode. 
-    
+    -v          verbose mode.
+
     hints for developer:
 EOF
 show_developer_hints
@@ -98,7 +98,7 @@ if [ ${cleanup} == true ]; then
 fi
 
 # the main cfn template with policies and s3 bucket
-MAIN_STACK_TEMPLATE_NAME="${MAIN_STACK_TEMPLATE_NAME:-rds-log-dog-s3.yaml}"
+MAIN_STACK_TEMPLATE_NAME="${MAIN_STACK_TEMPLATE_NAME:-rds-log-dog.yaml}"
 
 # this is the name of the stack defined in MAIN_STACK_TEMPLATE_NAME
 DST_BUCKET_STACK_NAME="${DST_BUCKET_STACK_NAME:-rds-log-dog-s3}"
@@ -142,10 +142,10 @@ if [ ${DEPLOY_CODE} == true ]; then
     S3_BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name ${DST_BUCKET_STACK_NAME} | jq -r '.[]|.[].Outputs|.[]|select(.OutputKey=="name")|.OutputValue')
 
     echo "deploying lambda zip to bucket: ${S3_BUCKET_NAME}"
-    pyb -X -P bucket_name="${S3_BUCKET_NAME}" -x verify upload_zip_to_s3 
+    pyb -X -P bucket_name="${S3_BUCKET_NAME}" -x verify upload_zip_to_s3
 
     echo "deploying/update lambda function ..."
-    set_target_s3_key_for_lambda 
+    set_target_s3_key_for_lambda
     (cd cfn/; cf sync -y ${FUNCTION_STACK_TEMPLATE_NAME} -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
 else
    echo "SKIP!"
