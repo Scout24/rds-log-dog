@@ -1,10 +1,6 @@
 region: eu-west-1
 tags:
     usecase: rds-log-dog
-    owner: ${USER}
 stacks:
-    #    rds-log-dog-lambda:
-    #    template-url: templates/lambda.yaml
-
     rds-log-dog-s3:
         template-url: templates/s3.yaml

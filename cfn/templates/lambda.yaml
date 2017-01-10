@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: RDS Log Dog lambda function
+Parameters:
+  s3bucket:
+    Type: String
+    Description: s3 bucket for logs and code
+  s3key: 
+    Type: String
+    Description: lambda code zip
+Resources:
+  lambdaRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: Allow
+            Principal: 
+                Service: 
+                  - "lambda.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+  readLogsPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: rds-read-logs-policy
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action: 
+              - "rds:Describe*"
+            Resource: "*" 
+      Roles:
+        - Ref: lambdaRole
+  function:
+    Type: "AWS::Lambda::Function"
+    Properties: 
+      Description: RDS Log Dog function
+      Code:
+        S3Bucket: '|ref|s3bucket'
+        S3Key: '|ref|s3key'
+      Environment:
+        Variables:
+          dstBucket: '|ref|s3bucket'
+      Handler: "test_lambda.handler"
+      #KmsKeyArn: String
+      Role: '|GetAtt|lambdaRole|Arn'
+      Runtime: python2.7
+      #Timeout: Integer
