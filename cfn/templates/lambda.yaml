@@ -45,8 +45,13 @@ Resources:
       Environment:
         Variables:
           dstBucket: '|ref|s3bucket'
-      Handler: "test_lambda.handler"
+      Handler: "rds_log_dog.lambda_handler"
       #KmsKeyArn: String
       Role: '|GetAtt|lambdaRole|Arn'
       Runtime: python2.7
       #Timeout: Integer
+Outputs:
+    name:
+        Value: '|Ref|function'
+        Description: name of lambda function
+

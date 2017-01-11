@@ -139,3 +139,6 @@ else
    echo "SKIP deploying Code!"
 fi
 
+export FUNCTION_STACK_NAME=${FUNCTION_STACK_NAME}
+export DST_BUCKET_STACK_NAME=${DST_BUCKET_STACK_NAME}
+
