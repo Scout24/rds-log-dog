@@ -1,0 +1,10 @@
+# change the region to your need.
+# don't forget to change the region in other stack definitions and scripts
+region: eu-west-1
+tags:
+    usecase: rds-log-dog
+stacks:
+    # Naming convention:
+    # This stack should be prefixed like the filename
+    rds-log-dog-s3:
+        template-url: templates/s3.yaml

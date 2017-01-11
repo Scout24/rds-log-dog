@@ -4,31 +4,17 @@
 # build, test and deploy
 #
 
-# To make a personal test env:
-# - duplicate the templates in cfn
-# - change the stack names (e.g. add your username)
-# - provide a BUILD_NUMBER (see below in script)
-# - call this script with:
-# $>
-show_developer_hints() {
-  cat << HELP
-  export MAIN_STACK_TEMPLATE_NAME=rds-log-dog-${USER:0:3}.yaml
-  export DST_BUCKET_STACK_NAME=rds-log-dog-s3-${USER:0:3}
-  export FUNCTION_STACK_TEMPLATE_NAME=rds-log-dog-lambda-${USER:0:3}.yaml
-  export FUNCTION_STACK_NAME=rds-log-dog-lambda-${USER:0:3}
-  export BUILD_NUMBER="\${USER:0:3}-\$(date +%s)"; ./deploy.sh -ci -v
-HELP
-}
-
 set -o errexit
 set -o pipefail
 set -o nounset
 # set -o xtrace
 
+source helper.sh
+
 # Usage info
 show_help() {
     cat << EOF
-Usage: ${0##*/} [-hv] [-ci]
+Usage: ${0##*/} [-hv] [-ci] [-s:]
     Build and deploy everything. You should specify what to deploy (code, infrastructure)
     Specify at least one of -c or -i.
 
@@ -36,11 +22,14 @@ Usage: ${0##*/} [-hv] [-ci]
     -d          delete needed enviroment variables. cleanup. defaults are used.
     -h          display this help and exit
     -i          deploy infrastructure. Can be used with -c too.
+    -p          disable personal build/deploy for development 
+                normally cloudformation stacks will be suffixed with your local username (3) 
     -v          verbose mode.
 
-    hints for developer:
+    example usage:
+    ./deploy.sh -ci
+    ./deploy.sh -ci -p      to deploy to production (no personal build)
 EOF
-show_developer_hints
 }
 
 # A POSIX variable
@@ -51,8 +40,9 @@ verbose=false
 cleanup=false
 DEPLOY_INFRASTRUCTURE=false
 DEPLOY_CODE=false
+PERSONAL_BUILD=true
 
-while getopts "h?vicd" opt; do
+while getopts "h?vicdp" opt; do
     case "$opt" in
     h|\?)
         show_help
@@ -65,6 +55,8 @@ while getopts "h?vicd" opt; do
     i)  DEPLOY_INFRASTRUCTURE=true
         ;;
     c)  DEPLOY_CODE=true
+        ;;
+    p)  PERSONAL_BUILD=false
         ;;
     esac
 done
@@ -82,10 +74,6 @@ command -v cf >/dev/null 2>&1 || { echo >&2 "I require cfn-sphere but it's not i
 command -v jq >/dev/null 2>&1 || { echo >&2 "I require jq but it's not installed. Install with: apt-get install jq . (or on mac: brew install jq). Aborting."; exit 1; }
 
 function cleanup_env {
-    unset MAIN_STACK_TEMPLATE_NAME
-    unset DST_BUCKET_STACK_NAME
-    unset FUNCTION_STACK_TEMPLATE_NAME
-    unset FUNCTION_STACK_NAME
     unset BUILD_NUMBER
 }
 
@@ -97,36 +85,25 @@ if [ ${cleanup} == true ]; then
     cleanup_env
 fi
 
-# the main cfn template with policies and s3 bucket
-MAIN_STACK_TEMPLATE_NAME="${MAIN_STACK_TEMPLATE_NAME:-rds-log-dog.yaml}"
+[ ${PERSONAL_BUILD} == true ] && ./create_dev_stack.sh
+set_templates_and_stack_names
+[ ${PERSONAL_BUILD} == true ] && export BUILD_NUMBER=dev.$(date +%s)
 
-# this is the name of the stack defined in MAIN_STACK_TEMPLATE_NAME
-DST_BUCKET_STACK_NAME="${DST_BUCKET_STACK_NAME:-rds-log-dog-s3}"
-
-# cfn template for the lambda function stack
-FUNCTION_STACK_TEMPLATE_NAME="${FUNCTION_STACK_TEMPLATE_NAME:-rds-log-dog-lambda.yaml}"
-
-# cfn stack name for the lambda function stack
-FUNCTION_STACK_NAME="${FUNCTION_STACK_NAME:-rds-log-dog-lambda}"
-
-BUILD_NUMBER="${BUILD_NUMBER:-0}"
 # ---------------------------------------
-
 
 if [ ${verbose} == true ]; then
     cat << EOF
 executing deploy using:
-MAIN_STACK_TEMPLATE_NAME:     ${MAIN_STACK_TEMPLATE_NAME}
 DST_BUCKET_STACK_NAME:        ${DST_BUCKET_STACK_NAME}
-FUNCTION_STACK_TEMPLATE_NAME: ${FUNCTION_STACK_TEMPLATE_NAME}
 FUNCTION_STACK_NAME:          ${FUNCTION_STACK_NAME}
+PERSONAL_BUILD:               ${PERSONAL_BUILD}
 BUILD_NUMBER:                 ${BUILD_NUMBER}
 EOF
 fi
 
 echo "deploying INFRASTRUCTURE ..."
 if [ ${DEPLOY_INFRASTRUCTURE} == true ]; then
-  (cd cfn/; cf sync -y ${MAIN_STACK_TEMPLATE_NAME})
+  (cd cfn/; cf sync -y ${DST_BUCKET_STACK_NAME}.yaml)
 else
   echo "SKIP!"
 fi
@@ -146,7 +123,7 @@ if [ ${DEPLOY_CODE} == true ]; then
 
     echo "deploying/update lambda function ..."
     set_target_s3_key_for_lambda
-    (cd cfn/; cf sync -y ${FUNCTION_STACK_TEMPLATE_NAME} -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
+    (cd cfn/; cf sync -y ${FUNCTION_STACK_NAME}.yaml -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
 else
    echo "SKIP!"
 fi

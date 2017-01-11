@@ -1,6 +1,0 @@
-region: eu-west-1
-tags:
-    usecase: rds-log-dog
-stacks:
-    rds-log-dog-s3:
-        template-url: templates/s3.yaml

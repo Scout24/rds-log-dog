@@ -1,9 +1,13 @@
+# change the region to your need.
+# don't forget to change the region in other stack definitions and scripts
 region: eu-west-1
 tags:
     usecase: rds-log-dog
 stacks:
+    # Naming convention:
+    # This stack should be named like the filename
     rds-log-dog-lambda:
         template-url: templates/lambda.yaml
         parameters:
             s3bucket: '|ref|rds-log-dog-s3.name'
-            s3key: 'dist/latest/rds_log_dog.zip'
+            #s3key: 'dist/latest/rds_log_dog.zip'
