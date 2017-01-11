@@ -77,18 +77,28 @@ function cleanup_env {
     unset BUILD_NUMBER
 }
 
+function set_dst_s3_bucket_name_from_stack {
+    S3_BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name ${DST_BUCKET_STACK_NAME} | jq -r '.[]|.[].Outputs|.[]|select(.OutputKey=="name")|.OutputValue')
+}
+
 # ---------------------------------------
 # CONFIG
 # ---------------------------------------
-
-if [ ${cleanup} == true ]; then
-    cleanup_env
-fi
 
 [ ${PERSONAL_BUILD} == true ] && ./create_dev_stack.sh
 set_templates_and_stack_names
 [ ${PERSONAL_BUILD} == true ] && export BUILD_NUMBER=dev.$(date +%Y%m%d%H%M%S)
 
+if [ ${cleanup} == true ]; then
+    cleanup_env
+    if [ ${PERSONAL_BUILD} == true ]; then
+        (cd cfn/; cf delete -y ${FUNCTION_STACK_NAME}.yaml && rm ${FUNCTION_STACK_NAME}.yaml)
+        set_dst_s3_bucket_name_from_stack
+        aws s3 rm --recursive s3://${S3_BUCKET_NAME}/
+        (cd cfn/; cf delete -y ${DST_BUCKET_STACK_NAME}.yaml && rm ${DST_BUCKET_STACK_NAME}.yaml)
+        rm cfn/.gitignore
+    fi
+fi
 # ---------------------------------------
 
 if [ ${verbose} == true ]; then
@@ -105,7 +115,7 @@ echo "deploying INFRASTRUCTURE ..."
 if [ ${DEPLOY_INFRASTRUCTURE} == true ]; then
   (cd cfn/; cf sync -y ${DST_BUCKET_STACK_NAME}.yaml)
 else
-  echo "SKIP!"
+  echo "SKIP deploying infrastructure!"
 fi
 
 function set_target_s3_key_for_lambda {
@@ -116,15 +126,16 @@ function set_target_s3_key_for_lambda {
 
 echo "deploying CODE ..."
 if [ ${DEPLOY_CODE} == true ]; then
-    S3_BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name ${DST_BUCKET_STACK_NAME} | jq -r '.[]|.[].Outputs|.[]|select(.OutputKey=="name")|.OutputValue')
-
+    set_dst_s3_bucket_name_from_stack
     echo "deploying lambda zip to bucket: ${S3_BUCKET_NAME}"
-    pyb -X -P bucket_name="${S3_BUCKET_NAME}" -x verify upload_zip_to_s3
+    extra_opts=''
+    [ ${verbose} == true ] && extra_opts='-X'
+    pyb ${extra_opts} -P bucket_name="${S3_BUCKET_NAME}" -x verify upload_zip_to_s3
 
     echo "deploying/update lambda function ..."
     set_target_s3_key_for_lambda
     (cd cfn/; cf sync -y ${FUNCTION_STACK_NAME}.yaml -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
 else
-   echo "SKIP!"
+   echo "SKIP deploying Code!"
 fi
 
