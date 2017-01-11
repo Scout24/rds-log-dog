@@ -8,3 +8,4 @@ from rds_log_dog import hello
 
 def handler(event, context):
     print hello()
+    print "abc1"

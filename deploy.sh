@@ -87,7 +87,7 @@ fi
 
 [ ${PERSONAL_BUILD} == true ] && ./create_dev_stack.sh
 set_templates_and_stack_names
-[ ${PERSONAL_BUILD} == true ] && export BUILD_NUMBER=dev.$(date +%s)
+[ ${PERSONAL_BUILD} == true ] && export BUILD_NUMBER=dev.$(date +%Y%m%d%H%M%S)
 
 # ---------------------------------------
 
