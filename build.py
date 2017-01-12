@@ -8,6 +8,7 @@ use_plugin("python.flake8")
 use_plugin("python.coverage")
 use_plugin("python.distutils")
 use_plugin('pypi:pybuilder_aws_plugin')
+use_plugin('python.integrationtest')
 
 name = "rds_log_dog"
 default_task = "publish"
@@ -15,6 +16,7 @@ version = "0.1"
 
 @init
 def set_properties(project):
+    project.build_depends_on('unittest2>=0.7')
     project.set_property('bucket_prefix', 'dist/')
     project.version = '%s.%s' % (project.version, os.environ.get('BUILD_NUMBER', 0))
     project.set_property("coverage_break_build", True)

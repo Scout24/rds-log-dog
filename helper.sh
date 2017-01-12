@@ -10,3 +10,7 @@ function set_templates_and_stack_names {
    FUNCTION_STACK_NAME="${BASENAME}-lambda${POSTFIX}"
 }
 
+function set_dst_s3_bucket_name_from_stack {
+    S3_BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name ${DST_BUCKET_STACK_NAME} | jq -r '.[]|.[].Outputs|.[]|select(.OutputKey=="name")|.OutputValue')
+}
+

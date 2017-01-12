@@ -3,13 +3,14 @@
 #
 # build, test and deploy
 #
+set +o nounset
+source helper.sh
 
 set -o errexit
 set -o pipefail
 set -o nounset
 # set -o xtrace
 
-source helper.sh
 
 # Usage info
 show_help() {
@@ -80,10 +81,6 @@ function cleanup_env {
     unset FUNCTION_STACK_NAME
 }
 
-function set_dst_s3_bucket_name_from_stack {
-    S3_BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name ${DST_BUCKET_STACK_NAME} | jq -r '.[]|.[].Outputs|.[]|select(.OutputKey=="name")|.OutputValue')
-}
-
 # ---------------------------------------
 # CONFIG
 # ---------------------------------------
@@ -92,11 +89,12 @@ function set_dst_s3_bucket_name_from_stack {
 set_templates_and_stack_names
 [ ${PERSONAL_BUILD} == true ] && export BUILD_NUMBER=dev.$(date +%Y%m%d%H%M%S)
 
+
 if [ ${cleanup} == true ]; then
     if [ ${PERSONAL_BUILD} == true ]; then
+        set_dst_s3_bucket_name_from_stack 
         set +o errexit
         (cd cfn/; cf delete -y ${FUNCTION_STACK_NAME}.yaml && rm ${FUNCTION_STACK_NAME}.yaml)
-        set_dst_s3_bucket_name_from_stack
         aws s3 rm --recursive s3://${S3_BUCKET_NAME}/
         (cd cfn/; cf delete -y ${DST_BUCKET_STACK_NAME}.yaml && rm ${DST_BUCKET_STACK_NAME}.yaml)
         rm cfn/.gitignore
@@ -134,7 +132,7 @@ function set_target_s3_key_for_lambda {
 
 echo "deploying CODE ..."
 if [ ${DEPLOY_CODE} == true ]; then
-    set_dst_s3_bucket_name_from_stack
+    set_dst_s3_bucket_name_from_stack 
     echo "deploying lambda zip to bucket: ${S3_BUCKET_NAME}"
     extra_opts=''
     [ ${verbose} == true ] && extra_opts='-X'
@@ -143,11 +141,9 @@ if [ ${DEPLOY_CODE} == true ]; then
     echo "deploying/update lambda function ..."
     set_target_s3_key_for_lambda
     (cd cfn/; cf sync -y ${FUNCTION_STACK_NAME}.yaml -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
-
-    echo "integration tests ..."
-    ./do_integration_tests.sh
-
 else
    echo "SKIP deploying Code!"
 fi
 
+echo "${FUNCTION_STACK_NAME}" > target/FUNCTION_STACK_NAME
+echo "${DST_BUCKET_STACK_NAME}" > target/DST_BUCKET_STACK_NAME
