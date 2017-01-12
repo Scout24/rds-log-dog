@@ -10,5 +10,6 @@ class Main(object):
           # foreach logfile in new_logfiles()
             # copy_logfile()
             # write metric / logentry
+        print ( "Hello world!" )
         return 0
 
