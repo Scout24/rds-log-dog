@@ -5,6 +5,10 @@ from rds_log_dog.main import Main
 
 def lambda_handler(event, context):
     main = Main()
-    main.do()
-    return 
+    return main.do()
+
+if __name__ == "__main__":
+     print("local mode executing ...")
+     main = Main()
+     main.do()
 

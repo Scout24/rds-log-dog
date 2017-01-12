@@ -135,6 +135,9 @@ if [ ${DEPLOY_CODE} == true ]; then
     echo "deploying/update lambda function ..."
     set_target_s3_key_for_lambda
     (cd cfn/; cf sync -y ${FUNCTION_STACK_NAME}.yaml -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
+
+    #echo "integration tests ..."
+    #src/integrationtest/
 else
    echo "SKIP deploying Code!"
 fi

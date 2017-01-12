@@ -35,6 +35,22 @@ Resources:
             Resource: "*" 
       Roles:
         - Ref: lambdaRole
+  writeCloudwatchPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: cw-write-logs-policy
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action: 
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "arn:aws:logs:*:*:*"
+      Roles:
+        - Ref: lambdaRole
   function:
     Type: "AWS::Lambda::Function"
     Properties: 
@@ -45,7 +61,7 @@ Resources:
       Environment:
         Variables:
           dstBucket: '|ref|s3bucket'
-      Handler: "rds_log_dog.lambda_handler"
+      Handler: "rds-log-dog.lambda_handler"
       #KmsKeyArn: String
       Role: '|GetAtt|lambdaRole|Arn'
       Runtime: python2.7
