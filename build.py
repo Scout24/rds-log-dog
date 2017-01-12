@@ -17,4 +17,5 @@ version = "0.1"
 def set_properties(project):
     project.set_property('bucket_prefix', 'dist/')
     project.version = '%s.%s' % (project.version, os.environ.get('BUILD_NUMBER', 0))
+    project.set_property("coverage_break_build", True)
 

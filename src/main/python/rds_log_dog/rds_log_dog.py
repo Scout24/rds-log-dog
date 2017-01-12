@@ -1,8 +1,10 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
-class Main(object):
+class RDSLogDog(object):
 
     def do(self):
+        # setup things
+          # s3 dest path
         # discover()
         # foreach instance do
           # discover_rds_logfiles()
@@ -10,6 +12,5 @@ class Main(object):
           # foreach logfile in new_logfiles()
             # copy_logfile()
             # write metric / logentry
-        print ( "Hello world!" )
         return 0
 
