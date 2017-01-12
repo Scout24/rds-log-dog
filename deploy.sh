@@ -14,7 +14,7 @@ source helper.sh
 # Usage info
 show_help() {
     cat << EOF
-Usage: ${0##*/} [-hv] [-ci] [-s:]
+Usage: ${0##*/} [-hv] [-ci] 
     Build and deploy everything. You should specify what to deploy (code, infrastructure)
     Specify at least one of -c or -i.
 
@@ -75,6 +75,9 @@ command -v jq >/dev/null 2>&1 || { echo >&2 "I require jq but it's not installed
 
 function cleanup_env {
     unset BUILD_NUMBER
+    unset DST_BUCKET_STACK_NAME
+    unset FUNCTION_STACK_NAME
+    unset PERSONAL_BUILD
 }
 
 function set_dst_s3_bucket_name_from_stack {
@@ -111,6 +114,9 @@ BUILD_NUMBER:                 ${BUILD_NUMBER}
 EOF
 fi
 
+export FUNCTION_STACK_NAME=${FUNCTION_STACK_NAME}
+export DST_BUCKET_STACK_NAME=${DST_BUCKET_STACK_NAME}
+
 echo "deploying INFRASTRUCTURE ..."
 if [ ${DEPLOY_INFRASTRUCTURE} == true ]; then
   (cd cfn/; cf sync -y ${DST_BUCKET_STACK_NAME}.yaml)
@@ -142,7 +148,4 @@ if [ ${DEPLOY_CODE} == true ]; then
 else
    echo "SKIP deploying Code!"
 fi
-
-export FUNCTION_STACK_NAME=${FUNCTION_STACK_NAME}
-export DST_BUCKET_STACK_NAME=${DST_BUCKET_STACK_NAME}
 
