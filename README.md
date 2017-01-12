@@ -27,7 +27,7 @@ Run the script, there will be a help:
 
 If you want to install or update the infrastructure (policies, s3 bucket) and the lambda code, run:
 
-    ./deploy.sh -ic
+    ./deploy.sh -icp
 
 How do I use it?
 ================
@@ -35,6 +35,12 @@ How do I use it?
 
 How to contribute ?
 ===================
+
+You will need:
+
+- jq
+- python 2.7
+- an AWS account
 
 Clone the project with: 
 
@@ -59,9 +65,11 @@ If you want to test it in your account, try to execute:
 
     ./deploy.sh -ci -v
 
-To do integration tests, you need to advance BUILD_NUMBER in order to deploy a new lambda version with your code. You will get a hint:
+This will deploy a personalized stack with your username (1st three chars).
 
-    ./deploy.sh -h
+Running integration tests, seperately:
+
+    ./do_integration_tests.sh
 
 License
 =======
