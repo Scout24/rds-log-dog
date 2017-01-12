@@ -74,10 +74,10 @@ command -v cf >/dev/null 2>&1 || { echo >&2 "I require cfn-sphere but it's not i
 command -v jq >/dev/null 2>&1 || { echo >&2 "I require jq but it's not installed. Install with: apt-get install jq . (or on mac: brew install jq). Aborting."; exit 1; }
 
 function cleanup_env {
+    set +o nounset
     unset BUILD_NUMBER
     unset DST_BUCKET_STACK_NAME
     unset FUNCTION_STACK_NAME
-    unset PERSONAL_BUILD
 }
 
 function set_dst_s3_bucket_name_from_stack {
@@ -93,14 +93,16 @@ set_templates_and_stack_names
 [ ${PERSONAL_BUILD} == true ] && export BUILD_NUMBER=dev.$(date +%Y%m%d%H%M%S)
 
 if [ ${cleanup} == true ]; then
-    cleanup_env
     if [ ${PERSONAL_BUILD} == true ]; then
+        set +o errexit
         (cd cfn/; cf delete -y ${FUNCTION_STACK_NAME}.yaml && rm ${FUNCTION_STACK_NAME}.yaml)
         set_dst_s3_bucket_name_from_stack
         aws s3 rm --recursive s3://${S3_BUCKET_NAME}/
         (cd cfn/; cf delete -y ${DST_BUCKET_STACK_NAME}.yaml && rm ${DST_BUCKET_STACK_NAME}.yaml)
         rm cfn/.gitignore
     fi
+    cleanup_env
+    exit
 fi
 # ---------------------------------------
 
