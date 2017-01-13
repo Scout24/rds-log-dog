@@ -67,9 +67,10 @@ If you want to test it in your account, try to execute:
 
 This will deploy a personalized stack with your username (1st three chars).
 
-Running integration tests, seperately:
+Running integration tests:
 
-    ./do_integration_tests.sh
+    pyb run_integration_tests
+
 
 License
 =======
