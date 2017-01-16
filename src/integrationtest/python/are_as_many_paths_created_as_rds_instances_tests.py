@@ -4,6 +4,7 @@ import unittest2 as unittest
 import os, re
 from util import execute_command
 from cfn_utils import get_output
+import rds_log_dog.s3_utils
 
 class Test(unittest.TestCase):
 
@@ -19,16 +20,14 @@ class Test(unittest.TestCase):
         self.bucket_name = get_output(self.bucket_stack_name , 'name')
        
     def test_no_s3_rds_logs_equals_rds_instances(self):
-        return_code, std_out, std_err = execute_command('aws s3 ls {}/rds_logs/'.format(self.bucket_name))
-        out = std_out.splitlines()
-        result = [ line for line in out if re.match("^\s*PRE\s+", line) ]
+        folder_result = rds_log_dog.s3_utils.list_folders(self.bucket_name,'rds_logs')
 
         # discover # of rds instances
         import boto3
         client = boto3.client('rds')
         response = client.describe_db_instances()
 
-        self.assertEqual(len(response['DBInstances']), len(result), "number of rds instances doesn't match number of folders in rds_logs/")
+        self.assertEqual(len(response['DBInstances']), len(folder_result), "number of rds instances doesn't match number of folders in rds_logs/")
 
 if __name__ == '__main__':
     unittest.main()
