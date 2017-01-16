@@ -17,6 +17,6 @@ def list_folders(Bucket, Prefix):
                 set_dirs.add(key_first_level)
             #else:
             #    print('file not a dir' + key_without_pref)
-        return(sorted(set_dirs))
+        return(set_dirs)
     else:
         raise Exception("list_objects_v2 returned with HTTPStatusCode <> 200")
