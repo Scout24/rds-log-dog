@@ -12,7 +12,12 @@ class TestS3Utils(unittest.TestCase):
         self.s3 = boto3.client('s3')
 
     @mock_s3
-    def test_list_s3_folders_on_empty(self):
+    def test_list_s3_folders_on_non_existing_folder(self):
+        self.s3.create_bucket(Bucket='mybucket')
+        self.assertEqual(set(), list_folders(Bucket='mybucket', Prefix='folder1'))
+
+    @mock_s3
+    def test_list_s3_folders_on_empty_folder(self):
         self.s3.create_bucket(Bucket='mybucket')
         self.s3.put_object(Bucket='mybucket', Key='folder1/')
         self.assertEqual(set(), list_folders(Bucket='mybucket', Prefix='folder1'))
@@ -42,3 +47,4 @@ class TestS3Utils(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()  
+
