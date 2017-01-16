@@ -1,10 +1,10 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
-import boto3 as boto
+import boto3 
 
 def list_folders(Bucket, Prefix):
     REGION = 'eu-west-1'
-    client_handler = boto.client('s3', region_name=REGION)
+    client_handler = boto3.client('s3', region_name=REGION)
     response_handler = client_handler.list_objects_v2(Bucket=Bucket, Prefix=Prefix)
     if response_handler['IsTruncated']:
         raise Exception("list_objects_v2 result is Truncated")

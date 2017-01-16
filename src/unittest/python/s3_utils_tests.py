@@ -1,7 +1,7 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import unittest2 as unittest
-import boto3 as boto
+import boto3 
 from moto import mock_s3
 from rds_log_dog.s3_utils import list_folders
 
@@ -9,7 +9,7 @@ class TestS3Utils(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.s3 = boto.client('s3')
+        self.s3 = boto3.client('s3')
 
     @mock_s3
     def test_list_s3_folders_on_empty(self):
