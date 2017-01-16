@@ -23,3 +23,16 @@ class LogFileHandler(object):
     def get_s3_dst_prefix(self):
         return "{}/{}".format(self.dst_prefix, self.rds_instance.get_id())
 
+    def s3_response_objects(self, response):
+        if 'Contents' in response:
+            return response['Contents']
+        else:
+            return
+
+    def discover_s3_logfiles(self):
+        files = set()
+        s3 = boto3.client('s3')
+        response = s3.list_objects_v2(Bucket=self.dst_bucket, Prefix=self.get_s3_dst_prefix())
+        for s3Obj in self.s3_response_objects(response):
+            files.add(s3Obj['Key'][len(self.get_s3_dst_prefix())+1:])
+        return files
