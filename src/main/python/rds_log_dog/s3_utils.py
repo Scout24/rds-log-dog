@@ -3,20 +3,14 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import boto3 
 
 def list_folders(Bucket, Prefix):
-    REGION = 'eu-west-1'
-    client_handler = boto3.client('s3', region_name=REGION)
-    response_handler = client_handler.list_objects_v2(Bucket=Bucket, Prefix=Prefix)
-    if response_handler['IsTruncated']:
-        raise Exception("list_objects_v2 result is Truncated")
-    if response_handler['ResponseMetadata']['HTTPStatusCode'] == 200:
-        set_dirs = set()
-        for key_struct in response_handler[u'Contents']:
-            key_without_pref = key_struct[u'Key'].lstrip(Prefix + '/')
-            if key_without_pref.find('/') > 0:
-                key_first_level = key_without_pref.split('/')[0]
-                set_dirs.add(key_first_level)
-            #else:
-            #    print('file not a dir' + key_without_pref)
-        return(set_dirs)
-    else:
-        raise Exception("list_objects_v2 returned with HTTPStatusCode <> 200")
+    client = boto3.client('s3')
+    response = client.list_objects_v2(Bucket=Bucket, Prefix=Prefix)
+    if response['IsTruncated']:
+        raise Exception("bucket have more than 1000 keys - not implemented until now")
+    folders = set()
+    for key_struct in response['Contents']:
+        key_without_pref = key_struct['Key'].lstrip(Prefix + '/')
+        if key_without_pref.find('/') > 0:
+            key_first_level = key_without_pref.split('/')[0]
+            folders.add(key_first_level)
+    return(folders)
