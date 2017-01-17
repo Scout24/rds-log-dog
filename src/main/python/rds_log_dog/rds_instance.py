@@ -6,4 +6,3 @@ class RDSInstance(object):
 
     def get_id(self):
         return self.id
-

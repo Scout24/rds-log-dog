@@ -2,6 +2,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 from .config import get_logger
 
+
 class RDSLogDog(object):
 
     def do(self):
@@ -9,13 +10,12 @@ class RDSLogDog(object):
         logger.info('start')
         # setup things
 
-          # s3 dest path
+        # s3 dest path
         # discover()
         # foreach instance do
-          # discover_rds_logfiles()
-          # discover_s3_logfiles()
-          # foreach logfile in new_logfiles()
-            # copy_logfile()
-            # write metric / logentry
+        # discover_rds_logfiles()
+        # discover_s3_logfiles()
+        # foreach logfile in new_logfiles()
+        # copy_logfile()
+        # write metric / logentry
         return 0
-
