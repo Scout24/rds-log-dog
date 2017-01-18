@@ -6,7 +6,7 @@ import os
 
 from rds_log_dog.rds_log_dog import RDSLogDog
 from rds_log_dog.config import Config
-from rds_log_dog.cfn_utils import cfn_get_output 
+from rds_log_dog.cfn_utils import cfn_get_output
 
 
 def lambda_handler(event, context):
@@ -20,7 +20,6 @@ if __name__ == "__main__":
     if not bucket_stack_name:
         with open('target/DST_BUCKET_STACK_NAME', 'r') as f:
             bucket_stack_name = f.read().strip()
-    dst_bucket = cfn_get_output(bucket_stack_name, 'name') 
+    dst_bucket = cfn_get_output(bucket_stack_name, 'name')
     os.environ['dstBucket'] = dst_bucket
     lambda_handler(None, None)
-

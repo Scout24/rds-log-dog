@@ -15,7 +15,7 @@ class LogFileHandler(object):
         self.dst_bucket = s3_dst_bucket
         self.dst_prefix_all = s3_dst_prefix
         # prefix for rds logs of the given instance
-        self.dst_prefix_instance = self.get_s3_dst_prefix_for_instance() 
+        self.dst_prefix_instance = self.get_s3_dst_prefix_for_instance()
 
     def setup_s3_destination(self):
         s3 = boto3.client('s3')
@@ -35,21 +35,22 @@ class LogFileHandler(object):
         response = s3.list_objects_v2(
             Bucket=bucket, Prefix=prefix)
         if 'Contents' in response:
-            return response['Contents'] 
+            return response['Contents']
         return None
 
     def discover_s3_logfiles(self):
-        files = set() 
+        files = set()
         for file in self.s3_get_objects(self.dst_bucket, self.dst_prefix_instance):
             if len(file['Key']) > len(self.dst_prefix_instance) + 1:
-                log_file = LogFile(file['Key'][len(self.dst_prefix_instance) + 1:])
+                log_file = LogFile(
+                    file['Key'][len(self.dst_prefix_instance) + 1:])
                 files.add(log_file)
         return files
 
     def rds_logfiles(self, id):
         client = boto3.client('rds')
         response = client.describe_db_log_files(
-                DBInstanceIdentifier=id)
+            DBInstanceIdentifier=id)
         if 'DescribeDBLogFiles' in response:
             return response['DescribeDBLogFiles']
         return None

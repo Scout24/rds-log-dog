@@ -6,6 +6,7 @@ from .log_file_handler import LogFileHandler
 
 logger = get_logger(__name__)
 
+
 class RDSLogDog(object):
 
     def __init__(self, config):
@@ -22,9 +23,9 @@ class RDSLogDog(object):
         for instance in instances:
             logger.info("processing: {}".format(instance.name))
             logfilehandler = LogFileHandler(
-                    instance,
-                    self.s3_dst_bucket,
-                    self.s3_dst_prefix_for_logs)
+                instance,
+                self.s3_dst_bucket,
+                self.s3_dst_prefix_for_logs)
             logfilehandler.setup_s3_destination()
             # discover_s3_logfiles()
             # discover_rds_logfiles()

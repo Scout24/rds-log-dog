@@ -1,13 +1,14 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import unittest2 as unittest
-import boto3 
+import boto3
 from moto import mock_s3
 
 from rds_log_dog.log_file_handler import LogFileHandler
 from rds_log_dog.s3_utils import list_folders
 from rds_log_dog.rds_instance import RDSInstance
 from rds_log_dog.log_file import LogFile
+
 
 class Test(unittest.TestCase):
 

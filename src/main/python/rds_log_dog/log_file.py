@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+
 class LogFile(object):
 
     def __init__(self, name):
@@ -13,9 +14,8 @@ class LogFile(object):
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-             return self.name == other.name
+            return self.name == other.name
         return False
 
     def __ne__(self, other):
         return not self == other
-
