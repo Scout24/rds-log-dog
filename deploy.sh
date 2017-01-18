@@ -130,20 +130,29 @@ function set_target_s3_key_for_lambda {
     S3_KEY_FOR_LAMBDA="dist/v${version}/${zipfile}"
 }
 
+function write_env_variables_to_disc {
+    echo "${FUNCTION_STACK_NAME}" > target/FUNCTION_STACK_NAME
+    echo "${DST_BUCKET_STACK_NAME}" > target/DST_BUCKET_STACK_NAME
+}
+
 echo "deploying CODE ..."
 if [ ${DEPLOY_CODE} == true ]; then
     set_dst_s3_bucket_name_from_stack 
     echo "deploying lambda zip to bucket: ${S3_BUCKET_NAME}"
     extra_opts=''
     [ ${verbose} == true ] && extra_opts='-X'
-    pyb ${extra_opts} -P bucket_name="${S3_BUCKET_NAME}" -x verify upload_zip_to_s3
+    pyb ${extra_opts} --exclude verify -P bucket_name="${S3_BUCKET_NAME}" upload_zip_to_s3
+    write_env_variables_to_disc
 
     echo "deploying/update lambda function ..."
     set_target_s3_key_for_lambda
     (cd cfn/; cf sync -y ${FUNCTION_STACK_NAME}.yaml -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
+
+    echo "integration testing ..."
+    pyb ${extra_opts} verify -P bucket_name="${S3_BUCKET_NAME}"
+    write_env_variables_to_disc
 else
    echo "SKIP deploying Code!"
 fi
 
-echo "${FUNCTION_STACK_NAME}" > target/FUNCTION_STACK_NAME
-echo "${DST_BUCKET_STACK_NAME}" > target/DST_BUCKET_STACK_NAME
+write_env_variables_to_disc

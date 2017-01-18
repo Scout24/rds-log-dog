@@ -4,18 +4,14 @@ import boto3
 from .rds_instance import RDSInstance
 from .config import get_logger
 
+logger = get_logger(__name__)
+
 class Discoverer(object):
 
-    def __init__(self, aws_region_name):
-       self.aws_region_name = aws_region_name
-       self.logger = get_logger(__name__)
+    def __init__(self):
+        pass
 
     def discover(self):
-        client = boto3.client('rds', region_name = self.aws_region_name)
+        client = boto3.client('rds')
         response = client.describe_db_instances()
-        dbinstances = set()
-        for instance in response['DBInstances']:
-            dbinstance = RDSInstance(instance['DBInstanceIdentifier'])
-            dbinstances.add(dbinstance)
-            #print('DBInstanceIdentifier: ' + instance['DBInstanceIdentifier'] + '  DBName: ' + instance['DBName'] + '  Engine: ' + instance['Engine'])
-        return(dbinstances)
+        return [ RDSInstance(i['DBInstanceIdentifier']) for i in response['DBInstances'] ]

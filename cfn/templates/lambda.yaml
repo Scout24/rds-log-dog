@@ -21,6 +21,22 @@ Resources:
                   - "lambda.amazonaws.com"
             Action: 
               - "sts:AssumeRole"
+  writeLogsPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: rds-write-logs-policy
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action: 
+              - "s3:Get*"
+              - "s3:List*"
+              - "s3:PutObject"
+            Resource: "*" 
+      Roles:
+        - Ref: lambdaRole
   readLogsPolicy:
     Type: "AWS::IAM::Policy"
     Properties: 

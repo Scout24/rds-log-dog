@@ -7,7 +7,7 @@ from moto import mock_s3
 from rds_log_dog.log_file_handler import LogFileHandler
 from rds_log_dog.s3_utils import list_folders
 from rds_log_dog.rds_instance import RDSInstance
-
+from rds_log_dog.log_file import LogFile
 
 class Test(unittest.TestCase):
 
@@ -30,7 +30,7 @@ class Test(unittest.TestCase):
     def test_get_s3_dst_prefix(self):
         logfilehandler = self.get_new_logfilehandler()
         self.assertEqual(self.dst_full_prefix_for_instance,
-                         logfilehandler.get_s3_dst_prefix())
+                         logfilehandler.get_s3_dst_prefix_for_instance())
 
     @mock_s3
     def test_setup_s3_destination_with_existing(self):
@@ -42,7 +42,7 @@ class Test(unittest.TestCase):
         folders = list_folders(
             Bucket=self.s3_dst_bucket_name, Prefix=self.s3_dst_logs_prefix)
         # foldername is rds_instance id (see test_get_s3_dst_prefix())
-        self.assertTrue({self.rds_instance.get_id()}.issubset(folders))
+        self.assertTrue({self.rds_instance.name}.issubset(folders))
 
     @mock_s3
     def test_setup_s3_destination_on_empty_bucket(self):
@@ -51,17 +51,31 @@ class Test(unittest.TestCase):
         logfilehandler.setup_s3_destination()
         folders = list_folders(
             Bucket=self.s3_dst_bucket_name, Prefix=self.s3_dst_logs_prefix)
-        self.assertTrue({self.rds_instance.get_id()}.issubset(folders))
+        self.assertTrue({self.rds_instance.name}.issubset(folders))
 
     @mock_s3
     def test_discover_s3_logfiles(self):
+        # bucket must exist
         self.create_dst_bucket()
-        logfiles = {'log1', 'log2'}
+        logfiles = {LogFile('log1'), LogFile('log2')}
         for file in logfiles:
             self.s3.put_object(Bucket=self.s3_dst_bucket_name,
-                               Key='{}/{}'.format(self.dst_full_prefix_for_instance, file))
+                               Key='{}/{}'.format(self.dst_full_prefix_for_instance, file.name))
+        # now some logfile for another instance
+        self.s3.put_object(Bucket=self.s3_dst_bucket_name,
+                           Key='{}/otherrds/{}'.format(self.s3_dst_logs_prefix, 'logA'))
         logfilehandler = self.get_new_logfilehandler()
-        self.assertEqual(logfiles, logfilehandler.discover_s3_logfiles())
+        #import pdb; pdb.set_trace()
+        self.assertSetEqual(logfiles, logfilehandler.discover_s3_logfiles())
+
+    @mock_s3
+    def test_discover_s3_logfiles_with_no_logfiles(self):
+        # bucket must exist
+        self.create_dst_bucket()
+        logfilehandler = self.get_new_logfilehandler()
+        # destination for logfiles must exist, so create it
+        logfilehandler.setup_s3_destination()
+        self.assertEqual(set(), logfilehandler.discover_s3_logfiles())
 
 if __name__ == '__main__':
     unittest.main()

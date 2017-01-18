@@ -3,40 +3,59 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import boto3
 from .rds_instance import RDSInstance
 from .config import get_logger
+from .log_file import LogFile
 
 
 class LogFileHandler(object):
 
     def __init__(self, rds_instance, s3_dst_bucket, s3_dst_prefix):
+        self.logger = get_logger(__name__)
+
         self.rds_instance = rds_instance
         self.dst_bucket = s3_dst_bucket
-        self.dst_prefix = s3_dst_prefix
-        self.logger = get_logger(__name__)
+        self.dst_prefix_all = s3_dst_prefix
+        # prefix for rds logs of the given instance
+        self.dst_prefix_instance = self.get_s3_dst_prefix_for_instance() 
 
     def setup_s3_destination(self):
         s3 = boto3.client('s3')
         response = s3.list_objects_v2(
-            Bucket=self.dst_bucket, Prefix=self.get_s3_dst_prefix())
+            Bucket=self.dst_bucket, Prefix=self.dst_prefix_instance)
         if 'Contents' not in response:
             s3.put_object(
-                Bucket=self.dst_bucket, Key='{}/'.format(self.get_s3_dst_prefix()))
+                Bucket=self.dst_bucket, Key='{}/'.format(self.dst_prefix_instance))
             self.logger.debug('created missing s3 dest: {}'.format(
-                self.get_s3_dst_prefix()))
+                self.dst_prefix_instance))
 
-    def get_s3_dst_prefix(self):
-        return "{}/{}".format(self.dst_prefix, self.rds_instance.get_id())
+    def get_s3_dst_prefix_for_instance(self):
+        return "{}/{}".format(self.dst_prefix_all, self.rds_instance.name)
 
-    def s3_response_objects(self, response):
-        if 'Contents' in response:
-            return response['Contents']
-        else:
-            return
-
-    def discover_s3_logfiles(self):
-        files = set()
+    def s3_get_objects(self, bucket, prefix):
         s3 = boto3.client('s3')
         response = s3.list_objects_v2(
-            Bucket=self.dst_bucket, Prefix=self.get_s3_dst_prefix())
-        for s3Obj in self.s3_response_objects(response):
-            files.add(s3Obj['Key'][len(self.get_s3_dst_prefix()) + 1:])
+            Bucket=bucket, Prefix=prefix)
+        if 'Contents' in response:
+            return response['Contents'] 
+        return None
+
+    def discover_s3_logfiles(self):
+        files = set() 
+        for file in self.s3_get_objects(self.dst_bucket, self.dst_prefix_instance):
+            if len(file['Key']) > len(self.dst_prefix_instance) + 1:
+                log_file = LogFile(file['Key'][len(self.dst_prefix_instance) + 1:])
+                files.add(log_file)
+        return files
+
+    def rds_logfiles(self, id):
+        client = boto3.client('rds')
+        response = client.describe_db_log_files(
+                DBInstanceIdentifier=id)
+        if 'DescribeDBLogFiles' in response:
+            return response['DescribeDBLogFiles']
+        return None
+
+    def discover_rds_logfiles(self):
+        files = set()
+        for logfile in self.rds_logfiles(self.rds_instance.name):
+            pass
         return files
