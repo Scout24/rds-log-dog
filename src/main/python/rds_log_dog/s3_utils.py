@@ -5,12 +5,11 @@ from .config import get_logger
 
 
 def get_top_level_folder_under_prefix(prefix, parent_prefix):
-    result = None
     chars_to_strip = len(parent_prefix) + 1
     stripped_prefix = prefix[chars_to_strip:]
-    if stripped_prefix.find('/') > 0:
-        result = stripped_prefix.split('/')[0]
-    return result
+    if '/' in stripped_prefix:
+        return stripped_prefix.split('/')[0]
+    return None
 
 
 def list_folders(Bucket, Prefix):
@@ -30,4 +29,4 @@ def list_folders(Bucket, Prefix):
     else:
         logger.warn(
             'list on prefix: {}/{} not possible. Does it exists ?'.format(Bucket, Prefix))
-    return(folders)
+    return folders
