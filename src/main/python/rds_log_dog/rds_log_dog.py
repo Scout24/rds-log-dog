@@ -22,6 +22,9 @@ class RDSLogDog(object):  # pragma: no cover
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(logging.DEBUG)
+        # disable botocore logging in debug level
+        logger = logging.getLogger('botocore')
+        logger.setLevel(logging.WARN)
 
     def do(self):
         # setup things
