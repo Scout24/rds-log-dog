@@ -54,5 +54,4 @@ class LogFileHandler(object):
         return set()
 
     def discover_rds_logfiles(self):
-        return { LogFile(e['LogFileName']) for e in self.rds_logfiles(self.rds_instance.name) }
-
+        return {LogFile(e['LogFileName']) for e in self.rds_logfiles(self.rds_instance.name)}
