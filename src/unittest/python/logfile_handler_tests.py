@@ -95,5 +95,34 @@ class Test(unittest.TestCase):
         logfilehandler = self.get_new_logfilehandler()
         self.assertItemsEqual(set(), logfilehandler.discover_rds_logfiles())
 
+    def test_new_logfiles_empty_src(self):
+        src = set()
+        dst = set()
+        self.assertEqual(set(), LogFileHandler.new_logfiles(src, dst))
+        dst = {LogFile('foo')}
+        self.assertEqual(set(), LogFileHandler.new_logfiles(src, dst))
+
+    def test_new_logfiles_empty_dst(self):
+        dst = set()
+        src = {LogFile('foo')}
+        self.assertEqual({LogFile('foo')},
+                         LogFileHandler.new_logfiles(src, dst))
+        src = {LogFile('foo'), LogFile('bar')}
+        self.assertEqual({LogFile('foo'), LogFile('bar')},
+                         LogFileHandler.new_logfiles(src, dst))
+
+    def test_new_logfiles_new_files_on_src(self):
+        src = {LogFile('foo'), LogFile('bar')}
+        dst = {LogFile('foo')}
+        self.assertEqual({LogFile('bar')},
+                         LogFileHandler.new_logfiles(src, dst))
+
+    def test_new_logfiles_new_files_on_src_old_on_dst(self):
+        src = {LogFile('foo'), LogFile('bar')}
+        dst = {LogFile('foo'), LogFile('xyz')}
+        self.assertEqual({LogFile('bar')},
+                         LogFileHandler.new_logfiles(src, dst))
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -37,10 +37,16 @@ class RDSLogDog(object):  # pragma: no cover
                 self.s3_dst_bucket,
                 self.s3_dst_prefix_for_logs)
             logfilehandler.setup_s3_destination()
-            # discover_s3_logfiles()
-            # discover_rds_logfiles()
-            # foreach logfile in new_logfiles()
-            # copy_logfile()
+            files_in_s3 = logfilehandler.discover_s3_logfiles()
+            logger.info("found {} files in s3".format(len(files_in_s3)))
+            files_in_rds = logfilehandler.discover_rds_logfiles()
+            logger.info("found {} files in rds".format(len(files_in_rds)))
+            logfiles_to_copy = logfilehandler.new_logfiles(
+                files_in_rds, files_in_s3)
+            logger.info("going to copy {} logfiles ...".format(
+                len(logfiles_to_copy)))
+            for file in logfiles_to_copy:
+                logger.debug("copying {} ...".format(file))
             # write metric / logentry
 
         return 0

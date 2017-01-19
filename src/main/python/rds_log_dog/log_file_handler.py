@@ -57,3 +57,7 @@ class LogFileHandler(object):
 
     def discover_rds_logfiles(self):
         return {LogFile(e['LogFileName']) for e in self.rds_logfiles(self.rds_instance.name)}
+
+    @staticmethod
+    def new_logfiles(logfiles_in_src, logfiles_in_dst):
+        return logfiles_in_src - logfiles_in_dst
