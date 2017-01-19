@@ -7,7 +7,7 @@ from .log_file_handler import LogFileHandler
 logger = get_logger(__name__)
 
 
-class RDSLogDog(object):
+class RDSLogDog(object):  # pragma: no cover
 
     def __init__(self, config):
         self.s3_dst_bucket = config.s3_dst_bucket

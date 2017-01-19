@@ -20,10 +20,10 @@ def set_properties(project):
     project.build_depends_on('moto')
     project.build_depends_on('mock')
     project.depends_on('boto3')
+
     project.set_property('bucket_prefix', 'dist/')
     project.version = '%s.%s' % (project.version, os.environ.get('BUILD_NUMBER', 0))
 
-    project.set_property("coverage_exceptions", ['rds_log_dog.rds_log_dog'])
     project.set_property("coverage_break_build", True)
     project.set_property("integrationtest_inherit_environment", True)
 
