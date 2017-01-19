@@ -34,7 +34,7 @@ class RDSLogDog(object):  # pragma: no cover
         instances = discoverer.discover()
         logger.info("{} instances discovered.".format(len(instances)))
         for instance in instances:
-            logger.info("processing: {}".format(instance.name))
+            logger.info("processing: '{}'".format(instance.name))
             logfilehandler = LogFileHandler(
                 instance,
                 self.s3_dst_bucket,
