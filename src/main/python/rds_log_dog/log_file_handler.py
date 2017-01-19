@@ -47,7 +47,7 @@ class LogFileHandler(object):
                 files.add(log_file)
         return files
 
-    def rds_logfiles(self, name):
+    def rds_logfiles(self, name): # pragma: no cover (covered by it)
         client = boto3.client('rds')
         response = client.describe_db_log_files(
             DBInstanceIdentifier=name)
