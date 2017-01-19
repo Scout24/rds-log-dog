@@ -3,6 +3,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import unittest2 as unittest
 import boto3
 from moto import mock_s3
+from mock import patch
 
 from rds_log_dog.log_file_handler import LogFileHandler
 from rds_log_dog.s3_utils import list_folders
@@ -77,6 +78,22 @@ class Test(unittest.TestCase):
         # destination for logfiles must exist, so create it
         logfilehandler.setup_s3_destination()
         self.assertEqual(set(), logfilehandler.discover_s3_logfiles())
+
+    @patch('rds_log_dog.log_file_handler.LogFileHandler.rds_logfiles')
+    def test_discover_rds_logfiles(self, rds_logfiles):
+        rds_logfiles.return_value = [
+            {'LogFileName': 'file1'},
+            {'LogFileName': 'file2'}
+        ]
+        logfilehandler = self.get_new_logfilehandler()
+        self.assertItemsEqual({LogFile('file1'), LogFile(
+            'file2')}, logfilehandler.discover_rds_logfiles())
+
+    @patch('rds_log_dog.log_file_handler.LogFileHandler.rds_logfiles')
+    def test_discover_rds_logfiles_with_no_logfiles(self, rds_logfiles):
+        rds_logfiles.return_value = set()
+        logfilehandler = self.get_new_logfilehandler()
+        self.assertItemsEqual(set(), logfilehandler.discover_rds_logfiles())
 
 if __name__ == '__main__':
     unittest.main()

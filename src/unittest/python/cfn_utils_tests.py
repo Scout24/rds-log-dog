@@ -17,8 +17,8 @@ class Test(unittest.TestCase):
     def test_cfn_get_output(self):
         client = boto3.client('cloudformation')
         response = client.create_stack(
-                StackName='foo',
-                TemplateBody="""
+            StackName='foo',
+            TemplateBody="""
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "An s3 bucket",
@@ -36,10 +36,10 @@ class Test(unittest.TestCase):
     }
   }
 } """)
-	self.assertTrue('StackId' in response)
-        self.assertEqual('MyBucketName', cfn_get_output(response['StackId'], 'name'))
+        self.assertTrue('StackId' in response)
+        self.assertEqual('MyBucketName', cfn_get_output(
+            response['StackId'], 'name'))
 
 
 if __name__ == '__main__':
     unittest.main()
-

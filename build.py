@@ -18,6 +18,7 @@ version = "0.1"
 def set_properties(project):
     project.build_depends_on('unittest2>=0.7')
     project.build_depends_on('moto')
+    project.build_depends_on('mock')
     project.depends_on('boto3')
     project.set_property('bucket_prefix', 'dist/')
     project.version = '%s.%s' % (project.version, os.environ.get('BUILD_NUMBER', 0))

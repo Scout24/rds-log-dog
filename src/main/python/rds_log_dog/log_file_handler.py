@@ -47,16 +47,14 @@ class LogFileHandler(object):
                 files.add(log_file)
         return files
 
-    def rds_logfiles(self, id):
+    def rds_logfiles(self, name):
         client = boto3.client('rds')
         response = client.describe_db_log_files(
-            DBInstanceIdentifier=id)
+            DBInstanceIdentifier=name)
         if 'DescribeDBLogFiles' in response:
             return response['DescribeDBLogFiles']
-        return None
+        return set()
 
     def discover_rds_logfiles(self):
-        files = set()
-        for logfile in self.rds_logfiles(self.rds_instance.name):
-            pass
-        return files
+        return { LogFile(e['LogFileName']) for e in self.rds_logfiles(self.rds_instance.name) }
+
