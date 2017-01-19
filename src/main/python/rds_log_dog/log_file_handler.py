@@ -2,15 +2,13 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 import boto3
 from .rds_instance import RDSInstance
-from .config import get_logger
 from .log_file import LogFile
 
+logger = logging.getLogger(__name__)
 
 class LogFileHandler(object):
 
     def __init__(self, rds_instance, s3_dst_bucket, s3_dst_prefix):
-        self.logger = get_logger(__name__)
-
         self.rds_instance = rds_instance
         self.dst_bucket = s3_dst_bucket
         self.dst_prefix_all = s3_dst_prefix
@@ -24,7 +22,7 @@ class LogFileHandler(object):
         if 'Contents' not in response:
             s3.put_object(
                 Bucket=self.dst_bucket, Key='{}/'.format(self.dst_prefix_instance))
-            self.logger.debug('created missing s3 dest: {}'.format(
+            logger.debug('created missing s3 dest: {}'.format(
                 self.dst_prefix_instance))
 
     def get_s3_dst_prefix_for_instance(self):

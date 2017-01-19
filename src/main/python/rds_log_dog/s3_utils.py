@@ -1,8 +1,9 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import boto3
-from .config import get_logger
+import logging
 
+logger = logging.getLogger(__name__)
 
 def get_top_level_folder_under_prefix(prefix, parent_prefix):
     chars_to_strip = len(parent_prefix) + 1
@@ -13,7 +14,6 @@ def get_top_level_folder_under_prefix(prefix, parent_prefix):
 
 
 def list_folders(Bucket, Prefix):
-    logger = get_logger(__name__)
     client = boto3.client('s3')
     response = client.list_objects_v2(Bucket=Bucket, Prefix=Prefix)
     if response['IsTruncated']:
