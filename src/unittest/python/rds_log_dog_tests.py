@@ -1,9 +1,8 @@
-import unittest
+import unittest2
 
-from rds_log_dog.rds_log_dog import RDSLogDog
-
-
-class TestRDSLogDog(unittest.TestCase):
+class TestRDSLogDog(unittest2.TestCase):
 
     def test_foo(self):
-        pass
+        import rds_log_dog 
+        from rds_log_dog.rds_log_dog import RDSLogDog
+
