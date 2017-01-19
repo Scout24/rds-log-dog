@@ -1,10 +1,12 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import boto3
+import logging
 from .rds_instance import RDSInstance
 from .log_file import LogFile
 
 logger = logging.getLogger(__name__)
+
 
 class LogFileHandler(object):
 
