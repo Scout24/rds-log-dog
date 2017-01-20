@@ -50,6 +50,7 @@ class RDSLogDog(object):  # pragma: no cover
                 len(logfiles_to_copy)))
             for file in logfiles_to_copy:
                 logger.debug("copying {} ...".format(file))
+                logfilehandler.copy(file)
             # write metric / logentry
 
         return 0
