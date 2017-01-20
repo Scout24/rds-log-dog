@@ -53,7 +53,7 @@ class LogFileHandler(object):
             DBInstanceIdentifier=name)
         if 'DescribeDBLogFiles' in response:
             return response['DescribeDBLogFiles']
-        return set()
+        return []
 
     def discover_rds_logfiles(self):
         return {LogFile(e['LogFileName']) for e in self.rds_logfiles(self.rds_instance.name)}
