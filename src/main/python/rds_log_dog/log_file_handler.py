@@ -14,7 +14,7 @@ class LogFileHandler(object):
         self.rds_instance = rds_instance
         self.dst_bucket = s3_dst_bucket
         self.dst_prefix_all = s3_dst_prefix
-        # prefix for rds logs of the given instance
+        # full prefix for rds logs of the given instance
         self.dst_prefix_instance = self.get_s3_dst_prefix_for_instance()
 
     def setup_s3_destination(self):
@@ -61,3 +61,9 @@ class LogFileHandler(object):
     @staticmethod
     def new_logfiles(logfiles_in_src, logfiles_in_dst):
         return logfiles_in_src - logfiles_in_dst
+
+    def copy(self, logfile):
+        logfile.set_rds_src(self.rds_instance.name)
+        data = logfile.read_from_rds()
+        logfile.set_s3_dst(self.dst_bucket, self.dst_prefix_instance)
+        logfile.write(data)

@@ -80,20 +80,28 @@ class Test(unittest.TestCase):
         self.assertEqual(set(), logfilehandler.discover_s3_logfiles())
 
     @patch('rds_log_dog.log_file_handler.LogFileHandler.rds_logfiles')
+    def test_discover_rds_logfiles_with_no_logfiles(self, rds_logfiles):
+        # emulate response of AWS api call part DescribeDBLogFiles
+        rds_logfiles.return_value = []
+        logfilehandler = self.get_new_logfilehandler()
+        self.assertEqual(set(), logfilehandler.discover_rds_logfiles())
+
+    @patch('rds_log_dog.log_file_handler.LogFileHandler.rds_logfiles')
     def test_discover_rds_logfiles(self, rds_logfiles):
+        # emulate response of AWS api call part DescribeDBLogFiles
         rds_logfiles.return_value = [
             {'LogFileName': 'file1'},
             {'LogFileName': 'file2'}
         ]
         logfilehandler = self.get_new_logfilehandler()
-        self.assertItemsEqual({LogFile('file1'), LogFile(
+        self.assertEqual({LogFile('file1'), LogFile(
             'file2')}, logfilehandler.discover_rds_logfiles())
 
     @patch('rds_log_dog.log_file_handler.LogFileHandler.rds_logfiles')
     def test_discover_rds_logfiles_with_no_logfiles(self, rds_logfiles):
         rds_logfiles.return_value = set()
         logfilehandler = self.get_new_logfilehandler()
-        self.assertItemsEqual(set(), logfilehandler.discover_rds_logfiles())
+        self.assertEqual(set(), logfilehandler.discover_rds_logfiles())
 
     def test_new_logfiles_empty_src(self):
         src = set()

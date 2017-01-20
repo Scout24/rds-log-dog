@@ -22,8 +22,6 @@ class Test(unittest.TestCase):
     def file_exists_in_s3(self, bucket, key):
         s3 = boto3.client('s3')
         response = s3.list_objects_v2(Bucket=bucket)
-        import pprint
-        pprint.pprint(response)
         match = [o['Key'] for o in response['Contents'] if o['Key'] == key]
         return len(match) > 0
 
@@ -35,11 +33,11 @@ class Test(unittest.TestCase):
             DBInstanceIdentifier=instance.name)
         src_logfile_name = response['DescribeDBLogFiles'][0]['LogFileName']
         logfile_to_copy = LogFile(src_logfile_name)
-        expected_dst_key = 'ittest/{}'.format(instance.name, src_logfile_name)
+        expected_dst_key = 'ittest/{}/{}'.format(instance.name, src_logfile_name)
 
         # check logfile doesn't exists in dst
         self.assertFalse(self.file_exists_in_s3(
-            self.bucket_name, expected_dst_key))
+            self.bucket_name, expected_dst_key), "destination logfile already exists in s3 {}. Can't test to copy.".format(expected_dst_key))
         # discover logfiles and compare
         # TODO: extra test
         logfilehandler = LogFileHandler(RDSInstance(
@@ -50,7 +48,7 @@ class Test(unittest.TestCase):
         # copy and check
         logfilehandler.copy(logfile_to_copy)
         self.assertTrue(self.file_exists_in_s3(
-            self.bucket_name, expected_dst_key))
+            self.bucket_name, expected_dst_key), "logfile not found in s3 {}".format(expected_dst_key))
 
 
 if __name__ == '__main__':
