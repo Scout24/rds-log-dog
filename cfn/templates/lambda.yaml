@@ -48,6 +48,7 @@ Resources:
             Effect: "Allow"
             Action: 
               - "rds:Describe*"
+              - "rds:DownloadDBLogFilePortion"
             Resource: "*" 
       Roles:
         - Ref: lambdaRole
@@ -81,7 +82,7 @@ Resources:
       #KmsKeyArn: String
       Role: '|GetAtt|lambdaRole|Arn'
       Runtime: python2.7
-      #Timeout: Integer
+      Timeout: 300
 Outputs:
     name:
         Value: '|Ref|function'
