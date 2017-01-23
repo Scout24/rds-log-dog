@@ -79,6 +79,7 @@ function cleanup_env {
     unset BUILD_NUMBER
     unset DST_BUCKET_STACK_NAME
     unset FUNCTION_STACK_NAME
+    set -o nounset
 }
 
 # ---------------------------------------
@@ -104,14 +105,20 @@ if [ ${cleanup} == true ]; then
 fi
 # ---------------------------------------
 
-if [ ${verbose} == true ]; then
+function display_env {
+    set +o nounset
     cat << EOF
-executing deploy using:
 DST_BUCKET_STACK_NAME:        ${DST_BUCKET_STACK_NAME}
 FUNCTION_STACK_NAME:          ${FUNCTION_STACK_NAME}
 PERSONAL_BUILD:               ${PERSONAL_BUILD}
 BUILD_NUMBER:                 ${BUILD_NUMBER}
 EOF
+    set -o nounset
+}
+
+if [ ${verbose} == true ]; then
+    echo "executing deploy using:"
+    display_env
 fi
 
 export FUNCTION_STACK_NAME=${FUNCTION_STACK_NAME}
@@ -148,11 +155,18 @@ if [ ${DEPLOY_CODE} == true ]; then
     set_target_s3_key_for_lambda
     (cd cfn/; cf sync -y ${FUNCTION_STACK_NAME}.yaml -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
 
-    echo "integration testing ..."
-    pyb ${extra_opts} verify -P bucket_name="${S3_BUCKET_NAME}"
-    write_env_variables_to_disc
+    if [ ${PERSONAL_BUILD} == true ]; then
+        echo "integration testing ..."
+        pyb ${extra_opts} verify -P bucket_name="${S3_BUCKET_NAME}"
+        write_env_variables_to_disc
+    else
+        echo "skipping integration tests, because of PERSONAL_BUILD = false"
+        echo "you can manually run the integration tests with: "
+        echo "pyb run_integration_tests"
+    fi
 else
    echo "SKIP deploying Code!"
 fi
 
 write_env_variables_to_disc
+display_env
