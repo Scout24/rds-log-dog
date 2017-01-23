@@ -18,7 +18,7 @@ class Test(unittest.TestCase):
         response = client.describe_db_log_files(
             DBInstanceIdentifier=instance.name)
         logfilehandler = LogFileHandler(RDSInstance(instance.name), 'b', 'p')
-        discovered_logfiles = logfilehandler.discover_rds_logfiles()
+        discovered_logfiles = logfilehandler.discover_logfiles_in_rds()
         self.assertEqual(type(set()), type(discovered_logfiles))
         self.assertEqual(len(response['DescribeDBLogFiles']),
                          len(discovered_logfiles))

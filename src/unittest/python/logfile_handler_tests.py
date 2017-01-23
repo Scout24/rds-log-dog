@@ -6,7 +6,7 @@ from moto import mock_s3
 from mock import patch
 
 from rds_log_dog.log_file_handler import LogFileHandler
-from rds_log_dog.s3_utils import list_folders
+from rds_log_dog.s3_utils import list_folders, setup_s3_destination
 from rds_log_dog.rds_instance import RDSInstance
 from rds_log_dog.log_file import LogFile
 
@@ -40,7 +40,7 @@ class Test(unittest.TestCase):
         self.s3.put_object(Bucket=self.s3_dst_bucket_name,
                            Key='{}/'.format(self.s3_dst_logs_prefix))
         logfilehandler = self.get_new_logfilehandler()
-        logfilehandler.setup_s3_destination()
+        setup_s3_destination(logfilehandler.dst_bucket, logfilehandler.dst_prefix_instance)
         folders = list_folders(
             Bucket=self.s3_dst_bucket_name, Prefix=self.s3_dst_logs_prefix)
         # foldername is rds_instance id (see test_get_s3_dst_prefix())
@@ -50,7 +50,7 @@ class Test(unittest.TestCase):
     def test_setup_s3_destination_on_empty_bucket(self):
         self.create_dst_bucket()
         logfilehandler = self.get_new_logfilehandler()
-        logfilehandler.setup_s3_destination()
+        setup_s3_destination(logfilehandler.dst_bucket, logfilehandler.dst_prefix_instance)
         folders = list_folders(
             Bucket=self.s3_dst_bucket_name, Prefix=self.s3_dst_logs_prefix)
         self.assertTrue({self.rds_instance.name}.issubset(folders))
@@ -68,7 +68,7 @@ class Test(unittest.TestCase):
                            Key='{}/otherrds/{}'.format(self.s3_dst_logs_prefix, 'logA'))
         logfilehandler = self.get_new_logfilehandler()
         #import pdb; pdb.set_trace()
-        self.assertSetEqual(logfiles, logfilehandler.discover_s3_logfiles())
+        self.assertSetEqual(logfiles, logfilehandler.discover_logfiles_in_s3())
 
     @mock_s3
     def test_discover_s3_logfiles_with_no_logfiles(self):
@@ -76,32 +76,26 @@ class Test(unittest.TestCase):
         self.create_dst_bucket()
         logfilehandler = self.get_new_logfilehandler()
         # destination for logfiles must exist, so create it
-        logfilehandler.setup_s3_destination()
-        self.assertEqual(set(), logfilehandler.discover_s3_logfiles())
+        setup_s3_destination(logfilehandler.dst_bucket, logfilehandler.dst_prefix_instance)
+        self.assertEqual(set(), logfilehandler.discover_logfiles_in_s3())
 
-    @patch('rds_log_dog.log_file_handler.LogFileHandler.rds_logfiles')
-    def test_discover_rds_logfiles_with_no_logfiles(self, rds_logfiles):
+    @patch('rds_log_dog.rds_utils.describe_logfiles_of_instance')
+    def test_discover_rds_logfiles_with_no_logfiles(self, describe_logfiles_of_instance):
         # emulate response of AWS api call part DescribeDBLogFiles
-        rds_logfiles.return_value = []
+        describe_logfiles_of_instance.return_value = []
         logfilehandler = self.get_new_logfilehandler()
-        self.assertEqual(set(), logfilehandler.discover_rds_logfiles())
+        self.assertEqual(set(), logfilehandler.discover_logfiles_in_rds())
 
-    @patch('rds_log_dog.log_file_handler.LogFileHandler.rds_logfiles')
-    def test_discover_rds_logfiles(self, rds_logfiles):
+    @patch('rds_log_dog.rds_utils.describe_logfiles_of_instance')
+    def test_discover_rds_logfiles(self, describe_logfiles_of_instance):
         # emulate response of AWS api call part DescribeDBLogFiles
-        rds_logfiles.return_value = [
+        describe_logfiles_of_instance.return_value = [
             {'LogFileName': 'file1'},
             {'LogFileName': 'file2'}
         ]
         logfilehandler = self.get_new_logfilehandler()
         self.assertEqual({LogFile('file1'), LogFile(
-            'file2')}, logfilehandler.discover_rds_logfiles())
-
-    @patch('rds_log_dog.log_file_handler.LogFileHandler.rds_logfiles')
-    def test_discover_rds_logfiles_with_no_logfiles(self, rds_logfiles):
-        rds_logfiles.return_value = set()
-        logfilehandler = self.get_new_logfilehandler()
-        self.assertEqual(set(), logfilehandler.discover_rds_logfiles())
+            'file2')}, logfilehandler.discover_logfiles_in_rds())
 
     def test_new_logfiles_empty_src(self):
         src = set()

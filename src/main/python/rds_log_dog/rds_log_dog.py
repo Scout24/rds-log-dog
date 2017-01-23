@@ -1,6 +1,8 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import logging
+
+from rds_log_dog.s3_utils import setup_s3_destination
 from .discoverer import Discoverer
 from .log_file_handler import LogFileHandler
 
@@ -39,10 +41,10 @@ class RDSLogDog(object):  # pragma: no cover
                 instance,
                 self.s3_dst_bucket,
                 self.s3_dst_prefix_for_logs)
-            logfilehandler.setup_s3_destination()
-            files_in_s3 = logfilehandler.discover_s3_logfiles()
+            setup_s3_destination(logfilehandler.dst_bucket, logfilehandler.dst_prefix_instance)
+            files_in_s3 = logfilehandler.discover_logfiles_in_s3()
             logger.info("found {} files in s3".format(len(files_in_s3)))
-            files_in_rds = logfilehandler.discover_rds_logfiles()
+            files_in_rds = logfilehandler.discover_logfiles_in_rds()
             logger.info("found {} files in rds".format(len(files_in_rds)))
             logfiles_to_copy = logfilehandler.new_logfiles(
                 files_in_rds, files_in_s3)

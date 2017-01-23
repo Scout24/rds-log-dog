@@ -42,7 +42,7 @@ class Test(unittest.TestCase):
         # TODO: extra test
         logfilehandler = LogFileHandler(RDSInstance(
             instance.name), self.bucket_name, 'ittest')
-        logfiles = logfilehandler.discover_rds_logfiles()
+        logfiles = logfilehandler.discover_logfiles_in_rds()
         self.assertIn(logfile_to_copy, logfiles)
 
         # copy and check
