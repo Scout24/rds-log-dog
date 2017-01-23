@@ -29,9 +29,6 @@ class RDSLogDog(object):  # pragma: no cover
         logger.setLevel(logging.WARN)
 
     def do(self):
-        # setup things
-
-        # discover()
         discoverer = Discoverer()
         instances = discoverer.discover()
         logger.info("{} instances discovered.".format(len(instances)))
@@ -41,7 +38,8 @@ class RDSLogDog(object):  # pragma: no cover
                 instance,
                 self.s3_dst_bucket,
                 self.s3_dst_prefix_for_logs)
-            setup_s3_destination(logfilehandler.dst_bucket, logfilehandler.dst_prefix_instance)
+            setup_s3_destination(logfilehandler.dst_bucket,
+                                 logfilehandler.dst_prefix_instance)
             files_in_s3 = logfilehandler.discover_logfiles_in_s3()
             logger.info("found {} files in s3".format(len(files_in_s3)))
             files_in_rds = logfilehandler.discover_logfiles_in_rds()
@@ -54,5 +52,7 @@ class RDSLogDog(object):  # pragma: no cover
                 logger.debug("copying {} ...".format(file))
                 logfilehandler.copy(file)
             # write metric / logentry
+            logger.info("synced {} files for '{}'.".format(
+                len(logfiles_to_copy), instance.name))
 
         return 0
