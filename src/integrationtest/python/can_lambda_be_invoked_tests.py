@@ -3,7 +3,11 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import unittest2 as unittest
 import os
 import boto3
+import pprint
+import base64
+
 from local import execute_command
+import logging
 from rds_log_dog.cfn_utils import cfn_get_output
 
 
@@ -24,7 +28,7 @@ class Test(unittest.TestCase):
 
     def test_is_lambda_invokeable(self):
         response = self.invoke_lambda(self.lambda_function_name)
-        self.assertNotIn('FunctionError', response, 'invocation error')
+        self.assertNotIn('FunctionError', response, 'invocation error.\n response: {}'.format(base64.b64decode(response['LogResult'])))
 
 if __name__ == '__main__':
     unittest.main()
