@@ -39,6 +39,6 @@ class LogFileHandler(object):
 
     def copy(self, logfile):
         logfile.set_rds_src(self.rds_instance.name)
-        data = logfile.read_from_rds()
+        data = logfile.read_data()
         logfile.set_s3_dst(self.dst_bucket, self.dst_prefix_instance)
-        logfile.write(data)
+        logfile.write_data(data)

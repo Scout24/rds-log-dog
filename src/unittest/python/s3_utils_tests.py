@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import unittest2 as unittest
 import boto3
 from moto import mock_s3
-from rds_log_dog.s3_utils import list_folders, get_top_level_folder_under_prefix
+from rds_log_dog.s3_utils import list_folders, get_top_level_folder_under_prefix, write_data_to_object
 
 
 class TestS3Utils(unittest.TestCase):
@@ -88,6 +88,16 @@ class TestS3Utils(unittest.TestCase):
         with self.assertRaises(Exception):
             self.assertEqual(None, get_top_level_folder_under_prefix(
                 'rds/folder1/', None))
+
+    @mock_s3
+    def test_write_data_to_object(self):
+        s3 = boto3.client('s3')
+        s3.create_bucket(Bucket='bucket')
+
+        write_data_to_object('bucket','foo','mydata')
+
+        # must not throw an exception
+        s3.head_object(Bucket='bucket', Key='foo')
 
 if __name__ == '__main__':
     unittest.main()

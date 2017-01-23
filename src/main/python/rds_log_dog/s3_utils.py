@@ -41,6 +41,14 @@ def get_files(bucket, prefix):
     return None
 
 
+def write_data_to_object(bucket, object_key, data):
+    client = boto3.client('s3')
+    client.put_object(
+        Bucket=bucket,
+        Key=object_key,
+        Body=data)
+
+
 def setup_s3_destination(dst_bucket, dst_prefix_instance):
     s3 = boto3.client('s3')
     response = s3.list_objects_v2(

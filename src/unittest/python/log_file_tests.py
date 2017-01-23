@@ -1,11 +1,9 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import unittest2 as unittest
-import boto3
-from moto import mock_s3
+from mock import patch, Mock
 
 from rds_log_dog.log_file import LogFile
-
 
 class Test(unittest.TestCase):
 
@@ -20,18 +18,24 @@ class Test(unittest.TestCase):
         l.set_s3_dst('bucket', 'prefix')
         self.assertEqual('prefix/foofile', l.get_s3_dst_key())
 
-    @mock_s3
-    def test_write(self):
-        l = LogFile('foo')
-        l.set_s3_dst('bucket', 'prefix')
-        s3 = boto3.client('s3')
-        s3.create_bucket(Bucket='bucket')
 
-        l.write('mydata')
+    @patch('rds_log_dog.rds_utils.get_full_db_logfile_data')
+    def test_read_from_rds(self, get_full_db_logfile_data):
+        l = LogFile('foofile')
+        l.set_rds_src('foords')
+        l.ensure_logfile_is_rds_logfile = Mock()
+        l.read_data()
+        l.ensure_logfile_is_rds_logfile.assert_called()
+        self.assertTrue(get_full_db_logfile_data.called)
 
-        # must not throw an exception
-        s3.head_object(Bucket='bucket', Key=l.get_s3_dst_key())
-
+    @patch('rds_log_dog.s3_utils.write_data_to_object')
+    def test_write_logfile_data(self, write_data_to_object):
+        l = LogFile('foofile')
+        l.set_s3_dst('foo', 'bar')
+        l.ensure_logfile_is_s3_logfile = Mock()
+        l.write_data('data')
+        l.ensure_logfile_is_s3_logfile.assert_called()
+        self.assertTrue(write_data_to_object.called)
 
 if __name__ == '__main__':
     unittest.main()
