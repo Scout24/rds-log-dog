@@ -9,6 +9,7 @@ use_plugin("python.coverage")
 use_plugin("python.distutils")
 use_plugin('pypi:pybuilder_aws_plugin')
 use_plugin('python.integrationtest')
+use_plugin('python.pytddmon')
 
 name = "rds_log_dog"
 default_task = "publish"
