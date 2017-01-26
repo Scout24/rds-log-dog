@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import unittest2 as unittest
 import os
 import re
-from local import execute_command, get_env
+from local import get_env
 import rds_log_dog.s3_utils
 
 
@@ -14,7 +14,7 @@ class Test(unittest.TestCase):
         (self.function_stack_name, self.bucket_stack_name,
          self.lambda_function_name, self.bucket_name) = get_env()
 
-    def test_no_s3_rds_logs_equals_rds_instances(self):
+    def test_count_s3_rds_logs_equals_rds_instances(self):
         folder_result = rds_log_dog.s3_utils.list_folders(
             self.bucket_name, 'rds_logs')
 

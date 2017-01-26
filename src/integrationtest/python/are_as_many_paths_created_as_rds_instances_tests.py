@@ -3,8 +3,11 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import unittest2 as unittest
 import os
 import re
-from local import execute_command, get_env
+
 import rds_log_dog.s3_utils
+
+from local import execute_command, get_env
+from utils import invoke_lambda
 
 
 class Test(unittest.TestCase):
@@ -13,6 +16,7 @@ class Test(unittest.TestCase):
     def setUpClass(self):
         (self.function_stack_name, self.bucket_stack_name,
          self.lambda_function_name, self.bucket_name) = get_env()
+        invoke_lambda()
 
     def test_no_s3_rds_logs_equals_rds_instances(self):
         folder_result = rds_log_dog.s3_utils.list_folders(

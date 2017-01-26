@@ -1,4 +1,7 @@
 import boto3
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def describe_logfiles_of_instance(name):  # pragma: no cover (covered by it)
