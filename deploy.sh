@@ -20,7 +20,7 @@ Usage: ${0##*/} [-hv] [-ci]
     Specify at least one of -c or -i.
 
     -c 		build and deploy lambda function. Can be used with -i too.
-    -d          delete needed enviroment variables. cleanup. defaults are used.
+    -d          delete stacks, and needed enviroment variables.
     -h          display this help and exit
     -i          deploy infrastructure. Can be used with -c too.
     -p          disable personal build/deploy for development 
@@ -93,14 +93,15 @@ set_templates_and_stack_names
 
 if [ ${cleanup} == true ]; then
     if [ ${PERSONAL_BUILD} == true ]; then
-        set_dst_s3_bucket_name_from_stack 
         set +o errexit
+        set_dst_s3_bucket_name_from_stack 
         (cd cfn/; cf delete -y ${FUNCTION_STACK_NAME}.yaml && rm ${FUNCTION_STACK_NAME}.yaml)
         aws s3 rm --recursive s3://${S3_BUCKET_NAME}/
         (cd cfn/; cf delete -y ${DST_BUCKET_STACK_NAME}.yaml && rm ${DST_BUCKET_STACK_NAME}.yaml)
         rm cfn/.gitignore
     fi
     cleanup_env
+    pyb clean
     exit
 fi
 # ---------------------------------------
@@ -138,6 +139,9 @@ function set_target_s3_key_for_lambda {
 }
 
 function write_env_variables_to_disc {
+    if [ ! -d "target" ]; then
+        mkdir target
+    fi
     echo "${FUNCTION_STACK_NAME}" > target/FUNCTION_STACK_NAME
     echo "${DST_BUCKET_STACK_NAME}" > target/DST_BUCKET_STACK_NAME
 }
