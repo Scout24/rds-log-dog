@@ -8,6 +8,7 @@ function set_templates_and_stack_names {
    fi
    DST_BUCKET_STACK_NAME="${BASENAME}-s3${POSTFIX}"
    FUNCTION_STACK_NAME="${BASENAME}-lambda${POSTFIX}"
+   SCHEDULER_STACK_NAME="${BASENAME}-scheduler${POSTFIX}"
 }
 
 function set_dst_s3_bucket_name_from_stack {

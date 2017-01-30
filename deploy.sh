@@ -15,7 +15,7 @@ set -o nounset
 # Usage info
 show_help() {
     cat << EOF
-Usage: ${0##*/} [-hv] [-ci] 
+Usage: ${0##*/} [-hv] [-ci]
     Build and deploy everything. You should specify what to deploy (code, infrastructure)
     Specify at least one of -c or -i.
 
@@ -23,13 +23,16 @@ Usage: ${0##*/} [-hv] [-ci]
     -d          delete stacks, and needed enviroment variables.
     -h          display this help and exit
     -i          deploy infrastructure. Can be used with -c too.
-    -p          disable personal build/deploy for development 
-                normally cloudformation stacks will be suffixed with your local username (3) 
+    -p          disable personal build/deploy for development
+                normally cloudformation stacks will be suffixed with your local username (3)
+    -s          deploy scheduler for the lambda. Can be used with -c too.
     -v          verbose mode.
 
     example usage:
     ./deploy.sh -ci
-    ./deploy.sh -ci -p      to deploy to production (no personal build)
+    ./deploy.sh -ci -p  to deploy to production (no personal build)
+    ./deploy.sh -cis    to deploy including a scheduler
+                        (attention: scheduler will run the lambda regularly!)
 EOF
 }
 
@@ -41,9 +44,10 @@ verbose=false
 cleanup=false
 DEPLOY_INFRASTRUCTURE=false
 DEPLOY_CODE=false
+DEPLOY_SCHEDULER=false
 PERSONAL_BUILD=true
 
-while getopts "h?vicdp" opt; do
+while getopts "h?vicdps" opt; do
     case "$opt" in
     h|\?)
         show_help
@@ -59,12 +63,15 @@ while getopts "h?vicdp" opt; do
         ;;
     p)  PERSONAL_BUILD=false
         ;;
+    s)  DEPLOY_SCHEDULER=true
+        ;;
     esac
 done
 
 shift $((OPTIND-1))
 
-if [ ${DEPLOY_INFRASTRUCTURE} == false ] && [ ${DEPLOY_CODE} == false ] && [ ${cleanup} == false ]; then
+if [ ${DEPLOY_INFRASTRUCTURE} == false ] && [ ${DEPLOY_CODE} == false ] && \
+   [ "${DEPLOY_SCHEDULER}" == "false" ] && [ ${cleanup} == false ]; then
     show_help
     exit 0
 fi
@@ -79,6 +86,7 @@ function cleanup_env {
     unset BUILD_NUMBER
     unset DST_BUCKET_STACK_NAME
     unset FUNCTION_STACK_NAME
+    unset SCHEDULER_STACK_NAME
     set -o nounset
 }
 
@@ -94,7 +102,8 @@ set_templates_and_stack_names
 if [ ${cleanup} == true ]; then
     if [ ${PERSONAL_BUILD} == true ]; then
         set +o errexit
-        set_dst_s3_bucket_name_from_stack 
+        (cd cfn/; cf delete -y ${SCHEDULER_STACK_NAME}.yaml && rm ${SCHEDULER_STACK_NAME}.yaml)
+        set_dst_s3_bucket_name_from_stack
         (cd cfn/; cf delete -y ${FUNCTION_STACK_NAME}.yaml && rm ${FUNCTION_STACK_NAME}.yaml)
         aws s3 rm --recursive s3://${S3_BUCKET_NAME}/
         (cd cfn/; cf delete -y ${DST_BUCKET_STACK_NAME}.yaml && rm ${DST_BUCKET_STACK_NAME}.yaml)
@@ -111,6 +120,7 @@ function display_env {
     cat << EOF
 DST_BUCKET_STACK_NAME:        ${DST_BUCKET_STACK_NAME}
 FUNCTION_STACK_NAME:          ${FUNCTION_STACK_NAME}
+SCHEDULER_STACK_NAME:         ${SCHEDULER_STACK_NAME}
 PERSONAL_BUILD:               ${PERSONAL_BUILD}
 BUILD_NUMBER:                 ${BUILD_NUMBER}
 EOF
@@ -123,6 +133,7 @@ if [ ${verbose} == true ]; then
 fi
 
 export FUNCTION_STACK_NAME=${FUNCTION_STACK_NAME}
+export SCHEDULER_STACK_NAME=${SCHEDULER_STACK_NAME}
 export DST_BUCKET_STACK_NAME=${DST_BUCKET_STACK_NAME}
 
 echo "deploying INFRASTRUCTURE ..."
@@ -142,13 +153,14 @@ function write_env_variables_to_disc {
     if [ ! -d "target" ]; then
         mkdir target
     fi
-    echo "${FUNCTION_STACK_NAME}" > target/FUNCTION_STACK_NAME
+    echo "${FUNCTION_STACK_NAME}"   > target/FUNCTION_STACK_NAME
+    echo "${SCHEDULER_STACK_NAME}"  > target/SCHEDULER_STACK_NAME
     echo "${DST_BUCKET_STACK_NAME}" > target/DST_BUCKET_STACK_NAME
 }
 
 echo "deploying CODE ..."
 if [ ${DEPLOY_CODE} == true ]; then
-    set_dst_s3_bucket_name_from_stack 
+    set_dst_s3_bucket_name_from_stack
     echo "deploying lambda zip to bucket: ${S3_BUCKET_NAME}"
     extra_opts=''
     [ ${verbose} == true ] && extra_opts='-X'
@@ -171,6 +183,17 @@ if [ ${DEPLOY_CODE} == true ]; then
 else
    echo "SKIP deploying Code!"
 fi
+
+echo "deploying SCHEDULER ..."
+if [ ${DEPLOY_SCHEDULER} == true ]; then
+    #set_dst_s3_bucket_name_from_stack
+    #set_target_s3_key_for_lambda
+    echo "deploying/update scheduler ..."
+    (cd cfn/; cf sync -y ${SCHEDULER_STACK_NAME}.yaml)
+else
+   echo "SKIP deploying SCHEDULER!"
+fi
+
 
 write_env_variables_to_disc
 display_env

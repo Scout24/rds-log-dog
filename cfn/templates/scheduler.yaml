@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: scheduler for lambda function (via AWS..Events)
+Parameters:
+  functionNameToCall:
+    Type: String
+    Description: name of the function to be called
+  functionArnToCall:
+    Type: String
+    Description: arn of the function to be called
+  frequency: 
+    Type: Number
+    Description: frequency in minutes
+Resources:
+  lambdaScheduler:
+    Type: AWS::Events::Rule
+    Properties: 
+      ScheduleExpression: !Sub
+        - rate(${CntMinutes} minutes)
+        - { CntMinutes: '|Ref|frequency' }
+      Targets:
+          - 
+            Id: lambdaScheduler
+            Arn: '|Ref|functionArnToCall'
+  scheduleLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties: 
+      FunctionName: '|Ref|functionNameToCall'
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: 
+        Fn::GetAtt:
+          - lambdaScheduler
+          - Arn
+Outputs:
+    name:
+        Value: '|Ref|lambdaScheduler'
+        Description: name of lambda scheduler
+

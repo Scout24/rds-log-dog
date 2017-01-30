@@ -1,0 +1,16 @@
+# change the region to your need.
+# don't forget to change the region in other stack definitions and scripts
+region: eu-west-1
+tags:
+    usecase: rds-log-dog
+stacks:
+    # Naming convention:
+    # This stack should be named like the filename
+    rds-log-dog-scheduler:
+        template-url: templates/scheduler.yaml
+        parameters:
+            frequency: 2
+            functionNameToCall: '|ref|rds-log-dog-lambda.lambdaFunctionName'
+            functionArnToCall:  '|ref|rds-log-dog-lambda.lambdaFunctionArn'
+
+
