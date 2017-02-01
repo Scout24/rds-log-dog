@@ -71,6 +71,7 @@ Running integration tests:
 
     pyb run_integration_tests
 
+For the tests you need the some variables from the deploy.sh in target/. So first run ./deploy.sh. 
 
 License
 =======
