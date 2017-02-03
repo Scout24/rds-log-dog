@@ -1,9 +1,20 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: RDS Log Dog destination rds logs bucket
+Parameters:
+  logKeepTimeInDays:
+      Type: Number
+      Description: number of days, after which the logs are purged (to free space)
+      Default: 30
 
 Resources:
     bucket:
         Type: AWS::S3::Bucket
+        Properties:
+            LifecycleConfiguration:
+                Rules:
+                    -  ExpirationInDays: '|Ref|logKeepTimeInDays'
+                       Status:           Enabled
+                
 
 Outputs:
     name:

@@ -8,3 +8,5 @@ stacks:
     # This stack should be prefixed like the filename
     rds-log-dog-s3:
         template-url: templates/s3.yaml
+        parameters:
+            logKeepTimeInDays: 1
