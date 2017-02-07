@@ -17,7 +17,7 @@ def get_one_rds_instance():
 def get_lambda_function_name():
     with open('target/FUNCTION_STACK_NAME', 'r') as f:
         function_stack_name = f.read().strip()
-    return cfn_get_output(function_stack_name, 'name')
+    return cfn_get_output(function_stack_name, 'lambdaFunctionName')
 
 
 def invoke_lambda():

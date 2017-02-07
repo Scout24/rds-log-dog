@@ -17,7 +17,7 @@ def get_env():
         with open('target/DST_BUCKET_STACK_NAME', 'r') as f:
             bucket_stack_name = f.read().strip()
 
-    lambda_function_name = cfn_get_output(function_stack_name, 'name')
+    lambda_function_name = cfn_get_output(function_stack_name, 'lambdaFunctionName')
     bucket_name = cfn_get_output(bucket_stack_name, 'name')
     return (function_stack_name, bucket_stack_name, lambda_function_name, bucket_name)
 
