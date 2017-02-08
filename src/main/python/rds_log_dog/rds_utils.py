@@ -29,3 +29,11 @@ def get_full_db_logfile_data(instance_name, logfile_name):  # pragma: no cover (
             break
         next_position_marker = response['Marker']
     return logfile_data
+
+
+def get_size(instance_name, logfile_name):
+    for logfile in describe_logfiles_of_instance(instance_name):
+        print(logfile)
+        if logfile['LogFileName'] == logfile_name:
+            return logfile['Size']
+    return

@@ -58,3 +58,9 @@ def setup_s3_destination(dst_bucket, dst_prefix_instance):
             Bucket=dst_bucket, Key='{}/'.format(dst_prefix_instance))
         logger.debug('created missing s3 dest: {}'.format(
             dst_prefix_instance))
+
+def get_size(bucket, key):
+    s3 = boto3.client('s3')
+    response = s3.head_object(Bucket=bucket, Key=key)
+    return response['ContentLength']
+

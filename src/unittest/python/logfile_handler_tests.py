@@ -40,7 +40,8 @@ class Test(unittest.TestCase):
         self.s3.put_object(Bucket=self.s3_dst_bucket_name,
                            Key='{}/'.format(self.s3_dst_logs_prefix))
         logfilehandler = self.get_new_logfilehandler()
-        setup_s3_destination(logfilehandler.dst_bucket, logfilehandler.dst_prefix_instance)
+        setup_s3_destination(logfilehandler.dst_bucket,
+                             logfilehandler.dst_prefix_instance)
         folders = list_folders(
             Bucket=self.s3_dst_bucket_name, Prefix=self.s3_dst_logs_prefix)
         # foldername is rds_instance id (see test_get_s3_dst_prefix())
@@ -50,7 +51,8 @@ class Test(unittest.TestCase):
     def test_setup_s3_destination_on_empty_bucket(self):
         self.create_dst_bucket()
         logfilehandler = self.get_new_logfilehandler()
-        setup_s3_destination(logfilehandler.dst_bucket, logfilehandler.dst_prefix_instance)
+        setup_s3_destination(logfilehandler.dst_bucket,
+                             logfilehandler.dst_prefix_instance)
         folders = list_folders(
             Bucket=self.s3_dst_bucket_name, Prefix=self.s3_dst_logs_prefix)
         self.assertTrue({self.rds_instance.name}.issubset(folders))
@@ -76,7 +78,8 @@ class Test(unittest.TestCase):
         self.create_dst_bucket()
         logfilehandler = self.get_new_logfilehandler()
         # destination for logfiles must exist, so create it
-        setup_s3_destination(logfilehandler.dst_bucket, logfilehandler.dst_prefix_instance)
+        setup_s3_destination(logfilehandler.dst_bucket,
+                             logfilehandler.dst_prefix_instance)
         self.assertEqual(set(), logfilehandler.discover_logfiles_in_s3())
 
     @patch('rds_log_dog.rds_utils.describe_logfiles_of_instance')

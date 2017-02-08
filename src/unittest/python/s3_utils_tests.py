@@ -2,8 +2,12 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 import unittest2 as unittest
 import boto3
+import os
 from moto import mock_s3
-from rds_log_dog.s3_utils import list_folders, get_top_level_folder_under_prefix, write_data_to_object
+from tempfile import NamedTemporaryFile
+
+from rds_log_dog.s3_utils import (
+    list_folders, get_top_level_folder_under_prefix, write_data_to_object, get_size)
 
 
 class TestS3Utils(unittest.TestCase):
@@ -91,13 +95,25 @@ class TestS3Utils(unittest.TestCase):
 
     @mock_s3
     def test_write_data_to_object(self):
-        s3 = boto3.client('s3')
-        s3.create_bucket(Bucket='bucket')
+        self.s3.create_bucket(Bucket='bucket')
 
-        write_data_to_object('bucket','foo','mydata')
+        write_data_to_object('bucket', 'foo', 'mydata')
 
         # must not throw an exception
-        s3.head_object(Bucket='bucket', Key='foo')
+        self.s3.head_object(Bucket='bucket', Key='foo')
+
+    @mock_s3
+    def test_get_size(self):
+        with NamedTemporaryFile() as f:
+            f.write('Some Datafoo')
+            file_size = os.path.getsize(f.name)
+            self.s3.create_bucket(Bucket='foo')
+            self.s3.put_object(
+                Body=f,
+                Bucket='foo',
+                Key='bar'
+            )
+            self.assertEquals(file_size, get_size('foo', 'bar'))
 
 if __name__ == '__main__':
     unittest.main()
