@@ -9,7 +9,7 @@ from local import execute_command, get_env
 
 from rds_log_dog.discoverer import Discoverer
 from rds_log_dog.log_file_handler import LogFileHandler
-from rds_log_dog.log_file import LogFile
+from rds_log_dog.log_file import LogFile, rdsLogFile
 from rds_log_dog.rds_instance import RDSInstance
 import rds_log_dog.rds_utils as rds
 
@@ -35,7 +35,7 @@ class Test(unittest.TestCase):
         instance = get_one_rds_instance()
         src_logfile_name = self.get_one_random_logfile(
             instance.name)
-        logfile_to_copy = LogFile(src_logfile_name)
+        logfile_to_copy = rdsLogFile(src_logfile_name, instance.name)
         expected_dst_key = 'ittest/{}/{}'.format(
             instance.name, src_logfile_name)
 
