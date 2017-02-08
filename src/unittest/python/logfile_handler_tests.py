@@ -46,7 +46,7 @@ class Test(unittest.TestCase):
         self.assertTrue({self.rds_instance.name}.issubset(folders))
 
     @mock_s3
-    def test_discover_s3_logfiles(self):
+    def test_discover_logfiles_in_s3(self):
         # bucket must exist
         self.s3.create_bucket(Bucket='bucket')
 

@@ -7,7 +7,7 @@ from moto import mock_s3
 from tempfile import NamedTemporaryFile
 
 from rds_log_dog.s3_utils import (
-    list_folders, get_top_level_folder_under_prefix, write_data_to_object, get_size)
+    list_folders, get_top_level_folder_under_prefix, write_data_to_object, get_size, get_files)
 
 
 class TestS3Utils(unittest.TestCase):
@@ -15,6 +15,13 @@ class TestS3Utils(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         self.s3 = boto3.client('s3')
+
+    @mock_s3
+    def test_get_files(self):
+        self.s3.create_bucket(Bucket='mybucket')
+        self.s3.put_object(Bucket='mybucket', Key='foo/file')
+        self.s3.put_object(Bucket='mybucket', Key='foo/file1')
+        self.assertEqual([('foo/file', 0), ('foo/file1', 0)], get_files('mybucket', 'foo'))
 
     @mock_s3
     def test_list_s3_folders_on_non_existing_folder(self):

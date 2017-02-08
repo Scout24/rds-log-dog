@@ -37,7 +37,7 @@ def get_files(bucket, prefix):
     response = s3.list_objects_v2(
         Bucket=bucket, Prefix=prefix)
     if 'Contents' in response:
-        return [o['Key'] for o in response['Contents']]
+        return [(o['Key'], o['Size']) for o in response['Contents']]
     return None
 
 

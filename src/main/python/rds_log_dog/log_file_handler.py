@@ -27,7 +27,7 @@ class LogFileHandler(object):
 
     def discover_logfiles_in_s3(self):
         files = set()
-        for filename in s3.get_files(self.dst_bucket, self.dst_prefix_instance):
+        for (filename, size) in s3.get_files(self.dst_bucket, self.dst_prefix_instance):
             if len(filename) > len(self.dst_prefix_instance) + 1:
                 name = filename[len(self.dst_prefix_instance) + 1:]
                 log_file = s3LogFile(name, self.dst_bucket, self.dst_prefix_instance)
