@@ -9,6 +9,10 @@ from tempfile import NamedTemporaryFile
 from rds_log_dog.s3_utils import (
     list_folders, get_top_level_folder_under_prefix, write_data_to_object, get_size, get_files)
 
+# Else we run into problems with mocking
+os.environ['http_proxy'] = ''
+os.environ['https_proxy'] = ''
+os.environ['no_proxy'] = ''
 
 class TestS3Utils(unittest.TestCase):
 
