@@ -6,9 +6,9 @@ import s3_utils as s3
 
 class LogFile(object):
 
-    def __init__(self, name):
+    def __init__(self, name, size=None):
         self.name = name
-        self.size = None
+        self.size = size
 
     def __hash__(self):
         return hash(self.name)
@@ -27,8 +27,8 @@ class LogFile(object):
 
 class s3LogFile(LogFile):
 
-    def __init__(self, name, bucket, prefix):
-        LogFile.__init__(self, name)
+    def __init__(self, name, bucket, prefix, size=None):
+        LogFile.__init__(self, name, size)
         self.bucket = bucket
         self.prefix = prefix
 
@@ -43,8 +43,8 @@ class s3LogFile(LogFile):
 
 class rdsLogFile(LogFile):
 
-    def __init__(self, name, instance_name):
-        LogFile.__init__(self, name)
+    def __init__(self, name, instance_name, size=None):
+        LogFile.__init__(self, name, size)
         self.instance_name = instance_name
 
     def fetch_size(self):

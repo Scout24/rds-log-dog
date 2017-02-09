@@ -37,5 +37,11 @@ class LogFileHandler(object):
     def discover_logfiles_in_rds(self):
         return {rdsLogFile(e['LogFileName'], self.rds_instance.name) for e in rds.describe_logfiles_of_instance(self.rds_instance.name)}
 
+    def get_s3LogFile(self, name):
+        return s3LogFile(name, self.dst_bucket, self.dst_prefix_instance)
+
+
     def copy(self, src):
-        s3LogFile(src.name, self.dst_bucket, self.dst_prefix_instance).write(src.read())
+        dst = self.get_s3LogFile(src.name)
+        dst.write(src.read())
+        return dst

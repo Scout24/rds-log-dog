@@ -16,7 +16,8 @@ class RDSLogDog(object):  # pragma: no cover
         self.s3_dst_bucket = config.s3_dst_bucket
         self.s3_dst_prefix_for_logs = config.s3_prefix_for_logs
 
-    def setup_logger(name):
+    @staticmethod
+    def setup_logger():
         logger = logging.getLogger()
         handler = logging.StreamHandler()
         formatter = logging.Formatter(

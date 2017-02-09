@@ -33,7 +33,6 @@ def get_full_db_logfile_data(instance_name, logfile_name):  # pragma: no cover (
 
 def get_size(instance_name, logfile_name):
     for logfile in describe_logfiles_of_instance(instance_name):
-        print(logfile)
         if logfile['LogFileName'] == logfile_name:
             return logfile['Size']
     return
