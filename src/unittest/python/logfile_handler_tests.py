@@ -18,7 +18,6 @@ os.environ['https_proxy'] = ''
 os.environ['no_proxy'] = ''
 os.environ['AWS_DEFAULT_REGION'] = 'eu-west-1'
 
-
 class Test(unittest.TestCase):
 
     @classmethod
@@ -28,13 +27,13 @@ class Test(unittest.TestCase):
         self.rds_instance = RDSInstance('rds_id')
 
     @mock_s3
-    def test_get_s3_dst_prefix(self):
+    def fest_get_s3_dst_prefix(self):
         logfilehandler = LogFileHandler(self.rds_instance , 'bucket', 'logs_prefix') 
         self.assertEqual('logs_prefix/{}'.format(self.rds_instance.name),
                          logfilehandler.get_s3_dst_prefix_for_instance())
 
     @mock_s3
-    def test_setup_s3_destination_with_existing(self):
+    def fest_setup_s3_destination_with_existing(self):
         self.s3.create_bucket(Bucket='bucket')
         self.s3.put_object(Bucket='bucket', Key='logs_prefix/')
         logfilehandler = LogFileHandler(self.rds_instance , 'bucket', 'logs_prefix')
@@ -45,7 +44,7 @@ class Test(unittest.TestCase):
         self.assertTrue({self.rds_instance.name}.issubset(folders))
 
     @mock_s3
-    def test_setup_s3_destination_on_empty_bucket(self):
+    def fest_setup_s3_destination_on_empty_bucket(self):
         self.s3.create_bucket(Bucket='bucket')
         logfilehandler = LogFileHandler(self.rds_instance , 'bucket', 'logs_prefix')
         setup_s3_destination(logfilehandler.dst_bucket,
@@ -54,7 +53,7 @@ class Test(unittest.TestCase):
         self.assertTrue({self.rds_instance.name}.issubset(folders))
 
     @mock_s3
-    def test_discover_logfiles_in_s3(self):
+    def fest_discover_logfiles_in_s3(self):
         # bucket must exist
         self.s3.create_bucket(Bucket='bucket')
 
@@ -68,7 +67,7 @@ class Test(unittest.TestCase):
         self.assertSetEqual(logfiles, logfilehandler.discover_logfiles_in_s3())
 
     @mock_s3
-    def test_discover_s3_logfiles_with_no_logfiles(self):
+    def fest_discover_s3_logfiles_with_no_logfiles(self):
         # bucket must exist
         self.s3.create_bucket(Bucket='bucket')
 
@@ -79,7 +78,7 @@ class Test(unittest.TestCase):
         self.assertEqual(set(), logfilehandler.discover_logfiles_in_s3())
 
     @patch('rds_log_dog.rds_utils.describe_logfiles_of_instance')
-    def test_discover_rds_logfiles_with_no_logfiles(self, describe_logfiles_of_instance):
+    def fest_discover_rds_logfiles_with_no_logfiles(self, describe_logfiles_of_instance):
         # emulate response of AWS api call part DescribeDBLogFiles
         describe_logfiles_of_instance.return_value = []
         logfilehandler = LogFileHandler(self.rds_instance , 'foo', 'bar') 
@@ -88,7 +87,7 @@ class Test(unittest.TestCase):
         self.assertEqual(set(), result)
 
     @patch('rds_log_dog.rds_utils.describe_logfiles_of_instance')
-    def test_discover_rds_logfiles(self, describe_logfiles_of_instance):
+    def fest_discover_rds_logfiles(self, describe_logfiles_of_instance):
         # emulate response of AWS api call part DescribeDBLogFiles
         describe_logfiles_of_instance.return_value = [
                 {'LogFileName': 'file1', 'LastWritten': 123, 'Size': 124},
@@ -101,27 +100,27 @@ class Test(unittest.TestCase):
                 {rdsLogFile('file1', ''), rdsLogFile( 'file2', '')}, 
                 result)
 
-    def test_new_logfiles_empty_src(self):
+    def fest_new_logfiles_empty_src(self):
         src = set()
         dst = set()
         self.assertEqual(set(), LogFileHandler.new_logfiles(src, dst))
         dst = {s3LogFile('foo', '', '')}
         self.assertEqual(set(), LogFileHandler.new_logfiles(src, dst))
 
-    def test_new_logfiles_empty_dst(self):
+    def fest_new_logfiles_empty_dst(self):
         dst = set()
         src = {rdsLogFile('foo', '')}
         self.assertEqual(src, LogFileHandler.new_logfiles(src, dst))
         src = {rdsLogFile('foo', ''), rdsLogFile('bar', '')}
         self.assertEqual(src, LogFileHandler.new_logfiles(src, dst))
 
-    def test_new_logfiles_new_files_on_src(self):
+    def fest_new_logfiles_new_files_on_src(self):
         src = {rdsLogFile('foo', ''), rdsLogFile('bar', '')}
         dst = {s3LogFile('foo', '', '')}
         self.assertEqual({LogFile('bar')},
                          LogFileHandler.new_logfiles(src, dst))
 
-    def test_new_logfiles_new_files_on_src_old_on_dst(self):
+    def fest_new_logfiles_new_files_on_src_old_on_dst(self):
         src = {rdsLogFile('foo', ''), rdsLogFile('bar', '')}
         dst = {s3LogFile('foo', '', ''), s3LogFile('xyz', '', '')}
         self.assertEqual({LogFile('bar')},
