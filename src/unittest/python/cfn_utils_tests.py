@@ -22,7 +22,7 @@ class Test(unittest.TestCase):
         self.s3 = boto3.client('s3')
 
     @moto.mock_cloudformation
-    def fest_cfn_get_output(self):
+    def test_cfn_get_output(self):
         client = boto3.client('cloudformation')
         response = client.create_stack(
             StackName='foo',
