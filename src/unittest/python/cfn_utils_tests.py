@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, unicode_literals, division
+from __future__ import print_function, absolute_import, division
+#from __future__ import print_function, absolute_import, unicode_literals, division
 
 import unittest2 as unittest
 import boto3
