@@ -13,6 +13,8 @@ from rds_log_dog.s3_utils import (
 os.environ['http_proxy'] = ''
 os.environ['https_proxy'] = ''
 os.environ['no_proxy'] = ''
+os.environ['AWS_DEFAULT_REGION'] = 'eu-west-1'
+
 
 class TestS3Utils(unittest.TestCase):
 
