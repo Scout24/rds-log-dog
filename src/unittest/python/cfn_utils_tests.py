@@ -1,5 +1,4 @@
-from __future__ import print_function, absolute_import, division
-#from __future__ import print_function, absolute_import, unicode_literals, division
+from __future__ import print_function, absolute_import, unicode_literals, division
 
 import unittest2 as unittest
 import boto3
@@ -10,9 +9,9 @@ from rds_log_dog.cfn_utils import cfn_get_output
 import os
 
 # Else we run into problems with mocking
-os.environ['http_proxy'] = ''
-os.environ['https_proxy'] = ''
-os.environ['no_proxy'] = ''
+#os.environ['http_proxy'] = ''
+#os.environ['https_proxy'] = ''
+#os.environ['no_proxy'] = ''
 os.environ['AWS_DEFAULT_REGION'] = 'eu-west-1'
 
 
