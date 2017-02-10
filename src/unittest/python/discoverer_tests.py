@@ -17,7 +17,7 @@ os.environ['AWS_DEFAULT_REGION'] = 'eu-west-1'
 class Test(unittest.TestCase):
 
     @mock_rds
-    def fest_discoverer_discover_with_no_rds_instances(self):
+    def test_discoverer_discover_with_no_rds_instances(self):
         disco = Discoverer()
         disco_result = disco.discover()
         self.assertEqual([], disco_result, "count rds-instances should be 0 in moto-mock env and from type list")
