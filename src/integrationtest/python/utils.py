@@ -17,7 +17,7 @@ def get_one_rds_instance():
     instances = disco.discover()
     assert (0 < len(instances)), "We need at least one RDS instance for this test!"
     # pick one instance
-    return instances.pop()
+    return instances[random.choice(range(0, len(instances) - 1))]
 
 
 def get_lambda_function_name():
@@ -41,6 +41,7 @@ def file_exists_in_s3(bucket, key):
 
 
 def get_one_random_logfile(instance_name):
+    logger.debug('describe logfiles of {}'.format(instance_name))
     logfiles = rds.describe_logfiles_of_instance(instance_name)
     return logfiles[random.choice(range(0, len(logfiles) - 1))]['LogFileName']
 

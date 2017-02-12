@@ -62,7 +62,7 @@ class Test(unittest.TestCase):
         # now some logfile for another instance
         self.s3.put_object(Bucket='bucket', Key='logs/other/f1')
 
-        logfiles = { s3LogFile('f1', '', ''), s3LogFile('f2', '', '')}
+        logfiles = { s3LogFile('f1', '', '', size=0), s3LogFile('f2', '', '', size=0)}
         logfilehandler = LogFileHandler(RDSInstance('inst1'), 'bucket', 'logs') 
         self.assertSetEqual(logfiles, logfilehandler.discover_logfiles_in_s3())
 
@@ -97,34 +97,40 @@ class Test(unittest.TestCase):
         result = logfilehandler.discover_logfiles_in_rds()
         describe_logfiles_of_instance.assert_called_with(self.rds_instance.name)
         self.assertEqual(
-                {rdsLogFile('file1', ''), rdsLogFile( 'file2', '')}, 
+                {rdsLogFile('file1', '', size=124), rdsLogFile( 'file2', '', size=124)}, 
                 result)
 
-    def test_new_logfiles_empty_src(self):
+    def test_logfiles_to_copy_empty_src(self):
         src = set()
         dst = set()
-        self.assertEqual(set(), LogFileHandler.new_logfiles(src, dst))
+        self.assertEqual(set(), LogFileHandler.logfiles_to_copy(src, dst))
         dst = {s3LogFile('foo', '', '')}
-        self.assertEqual(set(), LogFileHandler.new_logfiles(src, dst))
+        self.assertEqual(set(), LogFileHandler.logfiles_to_copy(src, dst))
 
-    def test_new_logfiles_empty_dst(self):
+    def test_logfiles_to_copy_empty_dst(self):
         dst = set()
         src = {rdsLogFile('foo', '')}
-        self.assertEqual(src, LogFileHandler.new_logfiles(src, dst))
+        self.assertEqual(src, LogFileHandler.logfiles_to_copy(src, dst))
         src = {rdsLogFile('foo', ''), rdsLogFile('bar', '')}
-        self.assertEqual(src, LogFileHandler.new_logfiles(src, dst))
+        self.assertEqual(src, LogFileHandler.logfiles_to_copy(src, dst))
 
-    def test_new_logfiles_new_files_on_src(self):
+    def test_logfiles_to_copy_new_files_on_src(self):
         src = {rdsLogFile('foo', ''), rdsLogFile('bar', '')}
         dst = {s3LogFile('foo', '', '')}
         self.assertEqual({LogFile('bar')},
-                         LogFileHandler.new_logfiles(src, dst))
+                         LogFileHandler.logfiles_to_copy(src, dst))
 
-    def test_new_logfiles_new_files_on_src_old_on_dst(self):
+    def test_logfiles_to_copy_new_files_on_src_old_on_dst(self):
         src = {rdsLogFile('foo', ''), rdsLogFile('bar', '')}
         dst = {s3LogFile('foo', '', ''), s3LogFile('xyz', '', '')}
         self.assertEqual({LogFile('bar')},
-                         LogFileHandler.new_logfiles(src, dst))
+                         LogFileHandler.logfiles_to_copy(src, dst))
+
+    def test_logfiles_to_copy_size_diff(self):
+        src = {rdsLogFile('foo', '', size=123)}
+        dst = {s3LogFile('foo', '', '', size=0)}
+        self.assertEqual({LogFile('foo', size=123)},
+                         LogFileHandler.logfiles_to_copy(src, dst))
 
 
 if __name__ == '__main__':

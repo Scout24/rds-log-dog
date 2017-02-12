@@ -29,31 +29,40 @@ class RDSLogDog(object):  # pragma: no cover
         logger = logging.getLogger('botocore')
         logger.setLevel(logging.WARN)
 
+    def sync_logfiles(self, logfiles, logfilehandler):
+        for logfile in logfiles:
+            logger.debug("copying {} ...".format(logfile))
+            logfilehandler.copy(logfile)
+
+    def discover_logfiles_to_copy(self, logfilehandler):
+        files_in_s3 = logfilehandler.discover_logfiles_in_s3()
+        logger.debug("found {} files in s3".format(len(files_in_s3)))
+        files_in_rds = logfilehandler.discover_logfiles_in_rds()
+        logger.debug("found {} files in rds".format(len(files_in_rds)))
+        logfiles = logfilehandler.logfiles_to_copy(
+            files_in_rds, files_in_s3)
+        return logfiles
+
+    def process_instance(self, instance):
+        logger.info("processing: '{}'".format(instance.name))
+        logfilehandler = LogFileHandler(
+            instance,
+            self.s3_dst_bucket,
+            self.s3_dst_prefix_for_logs)
+        setup_s3_destination(logfilehandler.dst_bucket,
+                            logfilehandler.dst_prefix_instance)
+        logfiles_to_copy = self.discover_logfiles_to_copy(logfilehandler)
+        logger.info("going to copy {} logfiles ...".format(
+            len(logfiles_to_copy)))
+        self.sync_logfiles(logfiles_to_copy, logfilehandler)
+        # write metric / logentry
+        logger.info("synced {} files for '{}'.".format(
+            len(logfiles_to_copy), instance.name))
+
     def do(self):
         discoverer = Discoverer()
         instances = discoverer.discover()
         logger.info("{} instances discovered.".format(len(instances)))
         for instance in instances:
-            logger.info("processing: '{}'".format(instance.name))
-            logfilehandler = LogFileHandler(
-                instance,
-                self.s3_dst_bucket,
-                self.s3_dst_prefix_for_logs)
-            setup_s3_destination(logfilehandler.dst_bucket,
-                                 logfilehandler.dst_prefix_instance)
-            files_in_s3 = logfilehandler.discover_logfiles_in_s3()
-            logger.info("found {} files in s3".format(len(files_in_s3)))
-            files_in_rds = logfilehandler.discover_logfiles_in_rds()
-            logger.info("found {} files in rds".format(len(files_in_rds)))
-            logfiles_to_copy = logfilehandler.new_logfiles(
-                files_in_rds, files_in_s3)
-            logger.info("going to copy {} logfiles ...".format(
-                len(logfiles_to_copy)))
-            for file in logfiles_to_copy:
-                logger.debug("copying {} ...".format(file))
-                logfilehandler.copy(file)
-            # write metric / logentry
-            logger.info("synced {} files for '{}'.".format(
-                len(logfiles_to_copy), instance.name))
-
+            self.process_instance(instance)
         return 0

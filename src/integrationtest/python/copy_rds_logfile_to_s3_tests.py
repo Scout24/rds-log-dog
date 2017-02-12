@@ -41,6 +41,7 @@ class Test(unittest.TestCase):
 
     def test_copy_rds_logfiles(self):
         logfile_to_copy = rdsLogFile(self.logfile_name, self.rds_instance.name)
+        logfile_to_copy.fetch_size()
 
         # discover logfiles and compare
         # TODO: extra test

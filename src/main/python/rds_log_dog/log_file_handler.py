@@ -19,7 +19,7 @@ class LogFileHandler(object):
         self.dst_prefix_instance = self.get_s3_dst_prefix_for_instance()
 
     @staticmethod
-    def new_logfiles(logfiles_in_src, logfiles_in_dst):
+    def logfiles_to_copy(logfiles_in_src, logfiles_in_dst):
         return logfiles_in_src - logfiles_in_dst
 
     def get_s3_dst_prefix_for_instance(self):
@@ -30,16 +30,16 @@ class LogFileHandler(object):
         for (filename, size) in s3.get_files(self.dst_bucket, self.dst_prefix_instance):
             if len(filename) > len(self.dst_prefix_instance) + 1:
                 name = filename[len(self.dst_prefix_instance) + 1:]
-                log_file = s3LogFile(name, self.dst_bucket, self.dst_prefix_instance)
+                log_file = s3LogFile(name, self.dst_bucket,
+                                     self.dst_prefix_instance, size=size)
                 files.add(log_file)
         return files
 
     def discover_logfiles_in_rds(self):
-        return {rdsLogFile(e['LogFileName'], self.rds_instance.name) for e in rds.describe_logfiles_of_instance(self.rds_instance.name)}
+        return {rdsLogFile(e['LogFileName'], self.rds_instance.name, size=e['Size']) for e in rds.describe_logfiles_of_instance(self.rds_instance.name)}
 
     def get_s3LogFile(self, name):
         return s3LogFile(name, self.dst_bucket, self.dst_prefix_instance)
-
 
     def copy(self, src):
         dst = self.get_s3LogFile(src.name)
