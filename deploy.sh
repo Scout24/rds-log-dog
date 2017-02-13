@@ -166,8 +166,9 @@ if [ ${DEPLOY_CODE} == true ]; then
     [ ${verbose} == true ] && extra_opts='-X'
     pyb ${extra_opts} prepare
     unset_proxy_env
-    pyb ${extra_opts} --exclude verify -P bucket_name="${S3_BUCKET_NAME}" upload_zip_to_s3
+    pyb ${extra_opts} run_unit_tests
     restore_proxy_env
+    pyb ${extra_opts} --exclude verify -P bucket_name="${S3_BUCKET_NAME}" upload_zip_to_s3
     write_env_variables_to_disc
 
     echo "deploying/update lambda function ..."
@@ -176,7 +177,7 @@ if [ ${DEPLOY_CODE} == true ]; then
 
     if [ ${PERSONAL_BUILD} == true ]; then
         echo "integration testing ..."
-        pyb ${extra_opts} verify -P bucket_name="${S3_BUCKET_NAME}"
+        pyb ${extra_opts} run_integration_tests -P bucket_name="${S3_BUCKET_NAME}"
         write_env_variables_to_disc
     else
         echo "skipping integration tests, because of PERSONAL_BUILD = false"
