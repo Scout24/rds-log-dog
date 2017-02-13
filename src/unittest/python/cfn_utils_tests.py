@@ -6,14 +6,11 @@ import moto
 from pprint import pprint
 from rds_log_dog.cfn_utils import cfn_get_output
 
-import os
-
-# Else we run into problems with mocking
-os.environ['http_proxy'] = ''
-os.environ['https_proxy'] = ''
-os.environ['no_proxy'] = ''
-os.environ['AWS_DEFAULT_REGION'] = 'eu-west-1'
-
+try:
+    import _fix_moto as fix
+    fix.unset_http_proxy()
+except:
+    pass
 
 class Test(unittest.TestCase):
 
