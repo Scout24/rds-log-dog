@@ -6,11 +6,6 @@ import moto
 from pprint import pprint
 from rds_log_dog.cfn_utils import cfn_get_output
 
-try:
-    import _fix_moto as fix
-    fix.unset_http_proxy()
-except:
-    pass
 
 class Test(unittest.TestCase):
 
