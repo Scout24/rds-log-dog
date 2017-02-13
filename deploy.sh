@@ -164,14 +164,15 @@ if [ ${DEPLOY_CODE} == true ]; then
     echo "deploying lambda zip to bucket: ${S3_BUCKET_NAME}"
     extra_opts=''
     [ ${verbose} == true ] && extra_opts='-X'
+    echo "----------- preparing"
     pyb ${extra_opts} prepare
-    unset_proxy_env
+    echo "-- disabling http_proxy ..." && unset_proxy_env
     pyb ${extra_opts} run_unit_tests
-    restore_proxy_env
-    pyb ${extra_opts} --exclude verify -P bucket_name="${S3_BUCKET_NAME}" upload_zip_to_s3
+    echo "-- enabling http_proxy ..." && restore_proxy_env
+    pyb ${extra_opts} -x verify -P bucket_name="${S3_BUCKET_NAME}" upload_zip_to_s3
     write_env_variables_to_disc
 
-    echo "deploying/update lambda function ..."
+    echo "---------------- deploying/update lambda function ..."
     set_target_s3_key_for_lambda
     (cd cfn/; cf sync -y ${FUNCTION_STACK_NAME}.yaml -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
 
