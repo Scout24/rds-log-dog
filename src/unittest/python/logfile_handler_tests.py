@@ -10,13 +10,6 @@ from rds_log_dog.s3_utils import list_folders, setup_s3_destination
 from rds_log_dog.rds_instance import RDSInstance
 from rds_log_dog.log_file import s3LogFile, rdsLogFile, LogFile
 
-import os
-
-# Else we run into problems with mocking
-os.environ['http_proxy'] = ''
-os.environ['https_proxy'] = ''
-os.environ['no_proxy'] = ''
-os.environ['AWS_DEFAULT_REGION'] = 'eu-west-1'
 
 class Test(unittest.TestCase):
 

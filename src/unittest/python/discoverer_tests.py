@@ -5,13 +5,6 @@ import boto3
 from moto import mock_rds
 from rds_log_dog.discoverer import Discoverer
 
-try:
-    import _fix_moto as fix
-    fix.unset_http_proxy()
-except:
-    pass
-
-
 class Test(unittest.TestCase):
 
     @mock_rds
