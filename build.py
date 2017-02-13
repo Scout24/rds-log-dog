@@ -12,7 +12,7 @@ use_plugin('python.integrationtest')
 use_plugin('python.pytddmon')
 
 name = "rds_log_dog"
-default_task = ["prepare", "compile_sources", "run_unit_tests", "package"]
+default_task = ["analyze", "package"]
 version = "0.1"
 
 @init

@@ -132,22 +132,6 @@ if [ ${verbose} == true ]; then
     display_env
 fi
 
-function unset_proxy_env {
-    for v in $(env |awk -v FS='=' ' {print $1}' | grep -ie '^http.*_proxy$'); do 
-        export __$v=$v
-        echo "unsetting env: $v"
-        unset $v
-    done
-}
-
-function restore_proxy_env {
-    for v in $(env |awk -v FS='=' ' {print $1}' | grep -ie '^__http.*_proxy$'); do 
-        export eval "${v:2}=$v"
-        unset $v
-    done
-}
-
-
 export FUNCTION_STACK_NAME=${FUNCTION_STACK_NAME}
 export SCHEDULER_STACK_NAME=${SCHEDULER_STACK_NAME}
 export DST_BUCKET_STACK_NAME=${DST_BUCKET_STACK_NAME}
