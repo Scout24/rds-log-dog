@@ -164,6 +164,7 @@ if [ ${DEPLOY_CODE} == true ]; then
     echo "deploying lambda zip to bucket: ${S3_BUCKET_NAME}"
     extra_opts=''
     [ ${verbose} == true ] && extra_opts='-X'
+    pyb ${extra_opts} prepare
     unset_proxy_env
     pyb ${extra_opts} --exclude verify -P bucket_name="${S3_BUCKET_NAME}" upload_zip_to_s3
     restore_proxy_env
