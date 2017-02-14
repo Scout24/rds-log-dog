@@ -5,8 +5,7 @@ rds-log-dog is a tool to automatically feed your [AWS RDS](https://aws.amazon.co
 It should reduce the manual effort in accessing the log files from your RDS intances.
 You can now define, how long you want to store your database logfiles (in s3).
 
-
-rds-log-dog is in the early stage of development. 
+After installing the tool, all your logfiles of your RDS instances (of one region) will be automatically fetched into a s3 bucket and stored around 30 days.
 
 How does it work?
 =================
@@ -29,9 +28,10 @@ Deploy to your AWS account with:
 
     ./deploy.sh -cis -p
 
-You need the have aws credentials set in your bash session to deploy!
+You need the have aws credentials set in your bash session to deploy! If you set AWS_DEFAULT_REGION, this region will be used to deploy.
 
 Now you have three cloudformation stacks:
+
 - rds-log-dog-s3
 - rds-log-dog-lambda
 - rds-log-dog-scheduler
@@ -40,9 +40,17 @@ Now you have three cloudformation stacks:
 How do I use it?
 ================
 
-You can collect the logfiles by calling the command line version of the tool:
 
-    rds-log-dog
+After deploying with deploy.sh ...
+
+All things are running automatically. You will find the logfiles of your RDS instances in a s3 bucket named like: 
+   
+    rds-log-dog-XXXXXXXXXXX
+
+Alternativly you can collect the logfiles by calling the command line version of the tool:
+
+    rds-log-dog.py
+
 
 
 How to contribute ?

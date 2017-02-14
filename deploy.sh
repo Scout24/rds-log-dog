@@ -15,14 +15,14 @@ set -o nounset
 # Usage info
 show_help() {
     cat << EOF
-Usage: ${0##*/} [-hv] [-ci]
+Usage: ${0##*/} [-hvd] [-cisp]
     Build and deploy everything. You should specify what to deploy (code, infrastructure)
     Specify at least one of -c or -i.
 
     -c 		build and deploy lambda function. Can be used with -i too.
     -d          delete stacks, and needed enviroment variables.
     -h          display this help and exit
-    -i          deploy infrastructure. Can be used with -c too.
+    -i          deploy infrastructure (the s3 bucket). Can be used with -c too.
     -p          disable personal build/deploy for development
                 normally cloudformation stacks will be suffixed with your local username (3)
     -s          deploy scheduler for the lambda. Can be used with -c too.
@@ -98,6 +98,16 @@ function cleanup_env {
 set_templates_and_stack_names
 [ ${PERSONAL_BUILD} == true ] && export BUILD_NUMBER=dev.$(date +%Y%m%d%H%M%S)
 
+function set_aws_region {
+    set +o nounset
+    if [ -n "$AWS_DEFAULT_REGION" ]; then
+        echo "set to AWS_REGION: ${AWS_DEFAULT_REGION}"
+        for f in $(ls cfn/*.yaml); do sed -i "s/^region: .*\$/region: ${AWS_DEFAULT_REGION}/" $f; done 
+    fi
+    set -o nounset
+}
+
+set_aws_region
 
 if [ ${cleanup} == true ]; then
     if [ ${PERSONAL_BUILD} == true ]; then
@@ -123,6 +133,7 @@ FUNCTION_STACK_NAME:          ${FUNCTION_STACK_NAME}
 SCHEDULER_STACK_NAME:         ${SCHEDULER_STACK_NAME}
 PERSONAL_BUILD:               ${PERSONAL_BUILD}
 BUILD_NUMBER:                 ${BUILD_NUMBER}
+AWS_DEFAULT_REGION:           ${AWS_DEFAULT_REGION}
 EOF
     set -o nounset
 }
