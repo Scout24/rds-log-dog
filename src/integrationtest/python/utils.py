@@ -9,7 +9,7 @@ from rds_log_dog.discoverer import Discoverer
 from rds_log_dog.cfn_utils import cfn_get_output
 import rds_log_dog.rds_utils as rds
 
-logger = logging.getLogger('ittest')
+logger = logging.getLogger(__name__)
 
 
 def get_one_rds_instance():
@@ -17,7 +17,8 @@ def get_one_rds_instance():
     instances = disco.discover()
     assert (0 < len(instances)), "We need at least one RDS instance for this test!"
     # pick one instance
-    return instances[random.choice(range(0, len(instances) - 1))]
+    logger.debug('instances to choose from {}'.format([i.name for i in instances]))
+    return instances[random.choice(range(0, len(instances)))]
 
 
 def get_lambda_function_name():
