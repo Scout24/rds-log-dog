@@ -1,8 +1,8 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
-import boto3
 import logging
 import json
+import boto3
 
 logger = logging.getLogger(__name__)
 

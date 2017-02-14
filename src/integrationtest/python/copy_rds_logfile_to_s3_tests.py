@@ -10,7 +10,7 @@ from local import execute_command, get_env
 
 from rds_log_dog.discoverer import Discoverer
 from rds_log_dog.log_file_handler import LogFileHandler
-from rds_log_dog.log_file import LogFile, rdsLogFile
+from rds_log_dog.log_file import LogFile, RdsLogFile
 from rds_log_dog.rds_instance import RDSInstance
 import utils
 
@@ -40,7 +40,7 @@ class Test(unittest.TestCase):
         utils.delete_prefix(self.bucket_name, self.dst_prefix)
 
     def test_copy_rds_logfiles(self):
-        logfile_to_copy = rdsLogFile(self.logfile_name, self.rds_instance.name)
+        logfile_to_copy = RdsLogFile(self.logfile_name, self.rds_instance.name)
         logfile_to_copy.fetch_size()
 
         # discover logfiles and compare

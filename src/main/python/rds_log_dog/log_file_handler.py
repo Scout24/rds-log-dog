@@ -1,12 +1,8 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
-import logging
-
 import rds_log_dog.s3_utils as s3
 import rds_log_dog.rds_utils as rds
-from .log_file import s3LogFile, rdsLogFile
-
-logger = logging.getLogger(__name__)
+from rds_log_dog.log_file import S3LogFile, RdsLogFile
 
 
 class LogFileHandler(object):
@@ -30,19 +26,19 @@ class LogFileHandler(object):
         for (filename, size) in s3.get_files(self.dst_bucket, self.dst_prefix_instance):
             if len(filename) > len(self.dst_prefix_instance) + 1:
                 name = filename[len(self.dst_prefix_instance) + 1:]
-                log_file = s3LogFile(name, self.dst_bucket,
+                log_file = S3LogFile(name, self.dst_bucket,
                                      self.dst_prefix_instance, size=size)
                 files.add(log_file)
         return files
 
     def discover_logfiles_in_rds(self):
-        return {rdsLogFile(e['LogFileName'], self.rds_instance.name, size=e['Size'])
+        return {RdsLogFile(e['LogFileName'], self.rds_instance.name, size=e['Size'])
                 for e in rds.describe_logfiles_of_instance(self.rds_instance.name)}
 
-    def get_s3LogFile(self, name):
-        return s3LogFile(name, self.dst_bucket, self.dst_prefix_instance)
+    def get_s3logfile(self, name):
+        return S3LogFile(name, self.dst_bucket, self.dst_prefix_instance)
 
     def copy(self, src):
-        dst = self.get_s3LogFile(src.name)
+        dst = self.get_s3logfile(src.name)
         dst.write(src.read())
         return dst

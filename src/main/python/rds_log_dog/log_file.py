@@ -25,7 +25,7 @@ class LogFile(object):
         return not self == other
 
 
-class s3LogFile(LogFile):
+class S3LogFile(LogFile):
 
     def __init__(self, name, bucket, prefix, size=None):
         LogFile.__init__(self, name, size)
@@ -42,7 +42,7 @@ class s3LogFile(LogFile):
         s3.write_data_to_object(self.bucket, self.get_dst_key(), data)
 
 
-class rdsLogFile(LogFile):
+class RdsLogFile(LogFile):
 
     def __init__(self, name, instance_name, size=None):
         LogFile.__init__(self, name, size)

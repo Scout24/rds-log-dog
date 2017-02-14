@@ -6,7 +6,7 @@ import logging
 from local import get_env
 import utils
 from rds_log_dog.rds_log_dog import RDSLogDog
-from rds_log_dog.log_file import s3LogFile
+from rds_log_dog.log_file import S3LogFile
 from rds_log_dog.config import Config
 from rds_log_dog.log_file_handler import LogFileHandler
 import rds_log_dog.s3_utils as s3
@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
 
         # choose a random file to reduce filesize in s3 to trigger redownload
         logfile = utils.get_one_random_logfile(self.rds_instance.name)
-        lf = s3LogFile(logfile, self.bucket_name, "{}/{}".format(self.dst_prefix, self.rds_instance.name))
+        lf = S3LogFile(logfile, self.bucket_name, "{}/{}".format(self.dst_prefix, self.rds_instance.name))
         logger.debug('truncate size of {}'.format(lf.name))
         lf.fetch_size()
         size = lf.size

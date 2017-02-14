@@ -5,7 +5,7 @@ import logging
 
 import rds_log_dog.s3_utils
 from rds_log_dog.log_file_handler import LogFileHandler
-from rds_log_dog.log_file import rdsLogFile
+from rds_log_dog.log_file import RdsLogFile
 
 from local import get_env
 import utils
@@ -36,7 +36,7 @@ class TestLogFile(unittest.TestCase):
             self.rds_instance.name, self.bucket_name)
 
     def test_logfile_equals_size(self):
-        src = rdsLogFile(self.logfile_name, self.rds_instance.name)
+        src = RdsLogFile(self.logfile_name, self.rds_instance.name)
         dst = self.lfh.copy(src)
         src.fetch_size()
         dst.fetch_size()
@@ -44,8 +44,8 @@ class TestLogFile(unittest.TestCase):
         self.assertEqual(src.size, dst.size)
 
     def test_logfile_not_equals_size(self):
-        src = rdsLogFile(self.logfile_name, self.rds_instance.name)
-        dst = self.lfh.get_s3LogFile(self.logfile_name)
+        src = RdsLogFile(self.logfile_name, self.rds_instance.name)
+        dst = self.lfh.get_s3logfile(self.logfile_name)
         dst.write('')
         src.fetch_size()
         dst.fetch_size()
