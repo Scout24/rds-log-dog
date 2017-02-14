@@ -183,7 +183,7 @@ if [ ${DEPLOY_CODE} == true ]; then
 
     if [ ${PERSONAL_BUILD} == true ]; then
         print_section "integration testing ..."
-        pyb ${extra_opts} run_integration_tests -P bucket_name="${S3_BUCKET_NAME}"
+        pyb ${extra_opts} -x run_unit_tests run_integration_tests -P bucket_name="${S3_BUCKET_NAME}"
         write_env_variables_to_disc
     else
         echo "skipping integration tests, because of PERSONAL_BUILD = false"
