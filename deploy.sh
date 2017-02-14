@@ -136,7 +136,7 @@ export FUNCTION_STACK_NAME=${FUNCTION_STACK_NAME}
 export SCHEDULER_STACK_NAME=${SCHEDULER_STACK_NAME}
 export DST_BUCKET_STACK_NAME=${DST_BUCKET_STACK_NAME}
 
-echo "deploying INFRASTRUCTURE ..."
+print_section "deploying INFRASTRUCTURE ..."
 if [ ${DEPLOY_INFRASTRUCTURE} == true ]; then
   (cd cfn/; cf sync -y ${DST_BUCKET_STACK_NAME}.yaml)
 else
@@ -158,22 +158,32 @@ function write_env_variables_to_disc {
     echo "${DST_BUCKET_STACK_NAME}" > target/DST_BUCKET_STACK_NAME
 }
 
-echo "deploying CODE ..."
+
+print_section "deploying CODE ..."
 if [ ${DEPLOY_CODE} == true ]; then
     set_dst_s3_bucket_name_from_stack
     echo "deploying lambda zip to bucket: ${S3_BUCKET_NAME}"
     extra_opts=''
     [ ${verbose} == true ] && extra_opts='-X'
-    pyb ${extra_opts} --exclude verify -P bucket_name="${S3_BUCKET_NAME}" upload_zip_to_s3
+    print_section "preparing pybuilder project ..."
+    pyb ${extra_opts} prepare
+
+    print_section "disabling possible set http proxy & running unittests ..."
+    unset_proxy_env
+    pyb ${extra_opts} run_unit_tests
+    print_section "re-enabling http proxy ..."
+    restore_proxy_env
+    print_section "package and upload lambda zip ..."
+    pyb ${extra_opts} -x run_unit_tests -x run_integration_tests -x verify -P bucket_name="${S3_BUCKET_NAME}" upload_zip_to_s3
     write_env_variables_to_disc
 
-    echo "deploying/update lambda function ..."
+    print_section "deploying/updating lambda function (cfn) ..."
     set_target_s3_key_for_lambda
     (cd cfn/; cf sync -y ${FUNCTION_STACK_NAME}.yaml -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
 
     if [ ${PERSONAL_BUILD} == true ]; then
-        echo "integration testing ..."
-        pyb ${extra_opts} verify -P bucket_name="${S3_BUCKET_NAME}"
+        print_section "integration testing ..."
+        pyb ${extra_opts} -x run_unit_tests run_integration_tests -P bucket_name="${S3_BUCKET_NAME}"
         write_env_variables_to_disc
     else
         echo "skipping integration tests, because of PERSONAL_BUILD = false"
@@ -188,12 +198,12 @@ echo "deploying SCHEDULER ..."
 if [ ${DEPLOY_SCHEDULER} == true ]; then
     #set_dst_s3_bucket_name_from_stack
     #set_target_s3_key_for_lambda
-    echo "deploying/update scheduler ..."
+    print_section "deploying/updating scheduler (cfn) ..."
     (cd cfn/; cf sync -y ${SCHEDULER_STACK_NAME}.yaml)
 else
    echo "SKIP deploying SCHEDULER!"
 fi
 
-
 write_env_variables_to_disc
 display_env
+print_section "SUCCESS"

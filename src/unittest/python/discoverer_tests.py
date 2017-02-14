@@ -5,15 +5,6 @@ import boto3
 from moto import mock_rds
 from rds_log_dog.discoverer import Discoverer
 
-import os
-
-# Else we run into problems with mocking
-os.environ['http_proxy'] = ''
-os.environ['https_proxy'] = ''
-os.environ['no_proxy'] = ''
-os.environ['AWS_DEFAULT_REGION'] = 'eu-west-1'
-
-
 class Test(unittest.TestCase):
 
     @mock_rds
