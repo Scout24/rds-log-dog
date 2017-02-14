@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def get_top_level_folder_under_prefix(prefix, parent_prefix):
     chars_to_strip = len(parent_prefix) + 1
     stripped_prefix = prefix[chars_to_strip:]
@@ -59,8 +60,8 @@ def setup_s3_destination(dst_bucket, dst_prefix_instance):
         logger.debug('created missing s3 dest: {}'.format(
             dst_prefix_instance))
 
+
 def get_size(bucket, key):
     s3 = boto3.client('s3')
     response = s3.head_object(Bucket=bucket, Key=key)
     return response['ContentLength']
-

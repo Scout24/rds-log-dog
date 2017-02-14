@@ -7,4 +7,3 @@ class Test(unittest.TestCase):
     def test_constructor(self):
         rds = RDSInstance('foo')
         self.assertEqual('foo', rds.name)
-

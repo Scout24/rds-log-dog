@@ -4,7 +4,7 @@ import logging
 
 import rds_log_dog.s3_utils as s3
 import rds_log_dog.rds_utils as rds
-from .log_file import LogFile, s3LogFile, rdsLogFile
+from .log_file import s3LogFile, rdsLogFile
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,8 @@ class LogFileHandler(object):
         return files
 
     def discover_logfiles_in_rds(self):
-        return {rdsLogFile(e['LogFileName'], self.rds_instance.name, size=e['Size']) for e in rds.describe_logfiles_of_instance(self.rds_instance.name)}
+        return {rdsLogFile(e['LogFileName'], self.rds_instance.name, size=e['Size'])
+                for e in rds.describe_logfiles_of_instance(self.rds_instance.name)}
 
     def get_s3LogFile(self, name):
         return s3LogFile(name, self.dst_bucket, self.dst_prefix_instance)

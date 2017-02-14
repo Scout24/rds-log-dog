@@ -31,7 +31,8 @@ class Test(unittest.TestCase):
     def test_write_to_s3(self, write_data_to_object):
         l = s3LogFile('name', 'bucket', 'prefix')
         l.write('data')
-        write_data_to_object.assert_called_with('bucket', 'prefix/name', 'data')
+        write_data_to_object.assert_called_with(
+            'bucket', 'prefix/name', 'data')
 
     @patch('rds_log_dog.s3_utils.get_size')
     def test_fetch_size_s3(self, get_size):
@@ -72,26 +73,26 @@ class Test(unittest.TestCase):
     def test_equals__wo_size(self):
         l1 = s3LogFile('foo', 'bucket', 'prefix')
         l2 = rdsLogFile('foo', 'instance')
-        self.assertEqual(l1, l2) 
+        self.assertEqual(l1, l2)
 
     def test_not_equals__wo_size(self):
         l1 = s3LogFile('foo', 'bucket', 'prefix')
         l2 = rdsLogFile('bar', 'instance')
-        self.assertNotEqual(l1, l2) 
+        self.assertNotEqual(l1, l2)
 
     def test_equals__w_size(self):
         l1 = s3LogFile('foo', 'bucket', 'prefix')
         l2 = rdsLogFile('foo', 'instance')
-        l1.size = 1 
+        l1.size = 1
         l2.size = 1
-        self.assertEqual(l1, l2) 
+        self.assertEqual(l1, l2)
 
     def test_not_equals__differ_size(self):
         l1 = s3LogFile('foo', 'bucket', 'prefix')
         l2 = rdsLogFile('foo', 'instance')
-        l1.size = 1 
+        l1.size = 1
         l2.size = 2
-        self.assertNotEqual(l1, l2) 
+        self.assertNotEqual(l1, l2)
 
 
 if __name__ == '__main__':

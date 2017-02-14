@@ -1,7 +1,7 @@
-from __future__ import unicode_literals
+from __future__ import print_function, absolute_import, unicode_literals, division
 
-import rds_utils as rds
-import s3_utils as s3
+import rds_log_dog.rds_utils as rds
+import rds_log_dog.s3_utils as s3
 
 
 class LogFile(object):
@@ -40,6 +40,7 @@ class s3LogFile(LogFile):
 
     def write(self, data):
         s3.write_data_to_object(self.bucket, self.get_dst_key(), data)
+
 
 class rdsLogFile(LogFile):
 

@@ -21,7 +21,8 @@ class TestS3Utils(unittest.TestCase):
         self.s3.create_bucket(Bucket='mybucket')
         self.s3.put_object(Bucket='mybucket', Key='foo/file')
         self.s3.put_object(Bucket='mybucket', Key='foo/file1')
-        self.assertEqual([('foo/file', 0), ('foo/file1', 0)], get_files('mybucket', 'foo'))
+        self.assertEqual([('foo/file', 0), ('foo/file1', 0)],
+                         get_files('mybucket', 'foo'))
 
     @mock_s3
     def test_list_s3_folders_on_non_existing_folder(self):

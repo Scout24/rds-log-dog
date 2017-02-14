@@ -1,5 +1,8 @@
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import boto3
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +24,7 @@ def get_full_db_logfile_data(instance_name, logfile_name):  # pragma: no cover (
         response = client.download_db_log_file_portion(
             DBInstanceIdentifier=instance_name,
             LogFileName=logfile_name, Marker=next_position_marker)
-        if not 'LogFileData' in response:
+        if 'LogFileData' not in response:
             logger.error('no LogFileData in logfile portion response.\n{}'.format(
                 json.dumps(response)))
         logfile_data += response['LogFileData']
