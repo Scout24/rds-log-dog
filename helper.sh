@@ -33,3 +33,8 @@ function restore_proxy_env {
     set -o nounset
 }
 
+function print_section {
+    printf '%.s*' {1..80} 1>&2; echo 1>&2;
+    echo "**** $1 " 1>&2
+    printf '%.s*' {1..80} 1>&2; echo 1>&2;
+}
