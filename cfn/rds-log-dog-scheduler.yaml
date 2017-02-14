@@ -9,7 +9,8 @@ stacks:
     rds-log-dog-scheduler:
         template-url: templates/scheduler.yaml
         parameters:
-            frequency: 60
+            frequency: 15  # in minutes
+            # don't change things after this line
             functionNameToCall: '|ref|rds-log-dog-lambda.lambdaFunctionName'
             functionArnToCall:  '|ref|rds-log-dog-lambda.lambdaFunctionArn'
 
