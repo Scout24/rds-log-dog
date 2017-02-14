@@ -21,16 +21,28 @@ From there you can feed the logfiles into you ELK stack or other monitoring/logg
 How to install it?
 ================
 
-Run the script, there will be a help: 
+Clone it:
 
-    ./deploy.sh
+     git clone git@github.com:ImmobilienScout24/rds-log-dog.git
 
-If you want to install or update the infrastructure (policies, s3 bucket) and the lambda code, run:
+Deploy to your AWS account with:
 
-    ./deploy.sh -icp
+    ./deploy.sh -cis -p
+
+You need the have aws credentials set in your bash session to deploy!
+
+Now you have three cloudformation stacks:
+- rds-log-dog-s3
+- rds-log-dog-lambda
+- rds-log-dog-scheduler
+
 
 How do I use it?
 ================
+
+You can collect the logfiles by calling the command line version of the tool:
+
+    rds-log-dog
 
 
 How to contribute ?
@@ -54,6 +66,7 @@ We recommend installing PyBuilder in a [virtual environment](https://virtualenv.
     source .venv/bin/activate
 
 Install pybuilder & dependencies:
+   
     pip install pybuilder
     pyb install_dependencies
 
@@ -66,12 +79,14 @@ If you want to test it in your account, try to execute:
     ./deploy.sh -ci -v
 
 This will deploy a personalized stack with your username (1st three chars).
+And executing the integration tests.
 
-Running integration tests:
+Running integration tests seperately:
 
     pyb run_integration_tests
 
-For the tests you need the some variables from the deploy.sh in target/. So first run ./deploy.sh. 
+For the integration tests you need the some variables from the deploy.sh in target/. So first run ./deploy.sh. 
+
 
 License
 =======
