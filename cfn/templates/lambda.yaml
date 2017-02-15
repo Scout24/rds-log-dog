@@ -83,6 +83,7 @@ Resources:
       Role: '|GetAtt|lambdaRole|Arn'
       Runtime: python2.7
       Timeout: 300
+      MemorySize: 256
 Outputs:
     lambdaFunctionName:
         Value: '|Ref|function'

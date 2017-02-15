@@ -52,6 +52,11 @@ Alternativly you can collect the logfiles by calling the command line version of
     rds-log-dog.py
 
 
+What does it cost ?
+===================
+
+With the default configuration and 4 instances with (together) 70MB of logfiles each hour, it will cost you appr. $1.30 per month.
+Normal RDS installations have only some KB of logfiles and costs you some cents a month.
 
 How to contribute ?
 ===================
