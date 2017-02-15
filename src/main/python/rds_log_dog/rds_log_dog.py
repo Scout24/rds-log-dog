@@ -16,14 +16,14 @@ class RDSLogDog(object):  # pragma: no cover
         self.s3_dst_prefix_for_logs = config.s3_prefix_for_logs
 
     @staticmethod
-    def setup_logger():
+    def setup_logger(level=20):
         logger = logging.getLogger()
         handler = logging.StreamHandler()
         formatter = logging.Formatter(
             '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(int(level))
         # disable botocore logging in debug level
         logger = logging.getLogger('botocore')
         logger.setLevel(logging.WARN)
