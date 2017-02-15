@@ -192,15 +192,14 @@ if [ ${DEPLOY_CODE} == true ]; then
     set_target_s3_key_for_lambda
     (cd cfn/; cf sync -y ${FUNCTION_STACK_NAME}.yaml -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
 
-    print_section "invoke the lambda function first time"
-    GREP_FUN_NAME="${FUNCTION_STACK_NAME}-fun"
-    REAL_FUN_NAME=`aws lambda list-functions | grep '"FunctionName": "'${GREP_FUN_NAME}'' | cut -d'"' -f4`
-    echo "${REAL_FUN_NAME}"
-    aws lambda invoke --function-name ${REAL_FUN_NAME} /tmp/rds-log-dog-lambda.out
-    cat /tmp/rds-log-dog-lambda.out
-    sleep 3
-
     if [ ${PERSONAL_BUILD} == true ]; then
+        print_section "prepare intergration - invoke the lambda function first time"
+        GREP_FUN_NAME="${FUNCTION_STACK_NAME}-fun"
+        REAL_FUN_NAME=`aws lambda list-functions | grep '"FunctionName": "'${GREP_FUN_NAME}'' | cut -d'"' -f4`
+        echo "${REAL_FUN_NAME}"
+        aws lambda invoke --function-name ${REAL_FUN_NAME} /tmp/rds-log-dog-lambda.out
+        cat /tmp/rds-log-dog-lambda.out
+        sleep 3
         print_section "integration testing ..."
         pyb ${extra_opts} -x run_unit_tests run_integration_tests -P bucket_name="${S3_BUCKET_NAME}"
         write_env_variables_to_disc
