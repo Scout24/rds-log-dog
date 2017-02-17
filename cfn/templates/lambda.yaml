@@ -84,6 +84,25 @@ Resources:
       Runtime: python2.7
       Timeout: 300
       MemorySize: 512
+  # #################################################
+  #
+  # ALARMING
+  #
+  # #################################################
+  TooManyErrorsAlarm:
+      Type: "AWS::CloudWatch::Alarm"
+      Properties:
+        AlarmDescription: "Too many errors per hour, when executing the lambda function. please check."
+        ComparisonOperator: GreaterThanThreshold
+        Namespace: AWS/Lambda
+        MetricName: Errors
+        Dimensions:
+          - Name: FunctionName
+            Value: '|Ref|function'
+        EvaluationPeriods: 1
+        Period: 3600
+        Statistic: Sum
+        Threshold: 4
 Outputs:
     lambdaFunctionName:
         Value: '|Ref|function'
