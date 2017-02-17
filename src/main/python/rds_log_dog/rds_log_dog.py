@@ -1,6 +1,7 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import logging
+import gc
 
 from rds_log_dog.discoverer import Discoverer
 from rds_log_dog.log_file_handler import LogFileHandler
@@ -32,6 +33,7 @@ class RDSLogDog(object):  # pragma: no cover
         for logfile in logfiles:
             logger.debug("copying {} ...".format(logfile))
             logfilehandler.copy(logfile)
+            gc.collect()
 
     def discover_logfiles_to_copy(self, logfilehandler):
         files_in_s3 = logfilehandler.discover_logfiles_in_s3()
