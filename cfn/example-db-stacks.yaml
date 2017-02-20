@@ -1,0 +1,20 @@
+region: eu-west-1
+tags:
+#  owner: unkown # <== CHANGE ME
+stacks:
+  rds-log-dog-ittest-pgdb:  
+    template-url: templates/rds-postgres-db.yaml
+    timeout: 1200
+    parameters:
+      dbName: postgres                                          
+      dbUser: postgres
+      dbPassword: postgres                                      
+      rdsInstanceType: db.t2.micro
+      dbMultiAZ: false                                          
+      dbAllocatedStorage: 5
+      storageEncrypted: false
+
+      # change parameters below this line to point to your global stacks -------------------------
+      vpcId: "|Ref|vpc.id"
+      subnetGroupName: '|Ref|vpc.dbSubnetGroup'
+

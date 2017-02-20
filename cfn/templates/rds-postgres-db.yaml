@@ -1,0 +1,195 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Sample Database / PostgreSQL
+Parameters:
+  dbName:
+    Default: public
+    Description: Name of the RDS db
+    Type: String
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+  dbUser:
+    Default: postgres
+    Description: RDS master user name
+    Type: String
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+  dbPassword:
+    Description: RDS master user password
+    Type: String
+    MinLength: 8
+    MaxLength: 41
+    ConstraintDescription: must contain from 8 to 41 characters
+    NoEcho: true
+  rdsInstanceType:
+    Default: db.t2.micro
+    Description: RDS instance type
+    Type: String
+  dbMultiAZ:
+    Default: false
+    Description: Use multi AZ failover.
+    Type: String
+    ConstraintDescription: must be a boolean
+  dbAllocatedStorage:
+    Default: 5
+    Description: db storage size
+    Type: Number
+    MinValue: 5
+    MaxValue: 6144
+    ConstraintDescription: must be between 5+
+  vpcId:
+    Description: VPC ID
+    Type: AWS::EC2::VPC::Id
+    ConstraintDescription: must begin with vpc- and can contain only alphanumeric characters
+  subnetGroupName:
+    Description: DB Subnet Group 
+    Type: String
+  postgresVersion:
+    Default: 9.5.2
+    Description: DB Engine Version
+    Type: String
+  rdsInstanceType:
+    Description: RDS instance type
+    Type: String
+    ConstraintDescription: must be a valid RDS DB instance type.
+  storageType:
+    Default: gp2
+    Description: storage type
+    Type: String
+    AllowedValues:
+      - standard
+      - gp2
+      - io1
+    ConstraintDescription: 'valid values: standard, gp2 or io1'
+  dbIops:
+    Description: db iops
+    Type: Number
+    ConstraintDescription: must contain only numeric characters.
+    Default: 0
+  storageEncrypted:
+    Default: false
+    Description: Indicates whether the database instance is encrypted.
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: 'valid values: true, false'
+  kmsKeyId:
+    Description: ARN of the KMS master key
+    Type: String
+    Default: ""
+  enableSsl:
+    Description: enable SSL encryption
+    Type: String
+    Default: 'true'
+  forceSsl:
+    Description: force SSL encryption
+    Type: String
+    Default: 'false'
+Conditions:
+  dbIopsRequired:
+    Fn::Equals:
+      - '|Ref|storageType'
+      - 'io1'
+  dbKmsKeyIdRequired:
+    Fn::Equals:
+      - '|Ref|storageEncrypted'
+      - 'true'
+  enableSsl:
+    Fn::Equals:
+      - '|Ref|enableSsl'
+      - 'true'
+  forceSsl:
+    Fn::Equals:
+      - '|Ref|forceSsl'
+      - 'true'
+Resources:
+  # --------------------------------------------------------------------------------------
+  # config for parameter group
+  # try to increase log size with increasing verbosiness ;)
+  # --------------------------------------------------------------------------------------
+  parameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description: RDS Log Dog ITTest paramter group for postgresql 9.5
+      Family: postgres9.5
+      Parameters:
+        shared_preload_libraries: pg_stat_statements
+        log_min_duration_statement: 0    
+        log_autovacuum_min_duration: 0    
+        log_duration: 1
+        log_error_verbosity: 'verbose'
+        log_executor_stats: 1
+        log_min_messages: 'debug1'
+        log_min_error_statement: 'debug1'
+        ssl:
+          Fn::If:
+            - enableSsl
+            - 1
+            - 0
+        rds.force_ssl:
+          Fn::If:
+            - forceSsl
+            - 1
+            - 0
+
+  database:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: '|Ref|dbName'
+      DBInstanceClass: '|Ref|rdsInstanceType'
+      MultiAZ: '|Ref|dbMultiAZ'
+      Engine: postgres
+      EngineVersion: '|Ref|postgresVersion'
+      DBInstanceIdentifier: '|Ref|AWS::StackName'
+      MasterUsername: '|Ref|dbUser'
+      MasterUserPassword: '|Ref|dbPassword'
+      DBSubnetGroupName: '|Ref|subnetGroupName'
+      DBParameterGroupName: '|Ref|parameterGroup'
+      PubliclyAccessible: false
+      VPCSecurityGroups:
+        - '|Ref|dbSecurityGroup'
+      AllocatedStorage: '|Ref|dbAllocatedStorage'
+      StorageType: '|Ref|storageType'
+      Iops:
+        Fn::If:
+          - dbIopsRequired
+          - '|Ref|dbIops'
+          - '|Ref|AWS::NoValue'
+      StorageEncrypted: '|Ref|storageEncrypted'
+      KmsKeyId:
+        Fn::If:
+          - dbKmsKeyIdRequired
+          - '|Ref|kmsKeyId'
+          - '|Ref|AWS::NoValue'
+
+  dbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:
+        '|Join| ':
+          - '|Ref|AWS::StackName'
+          - RDS security group
+      VpcId:
+        '|Ref|vpcId'
+
+Outputs:
+  dbHost:
+    Value: '|GetAtt|database|Endpoint.Address'
+    Description: DB address
+  dbPort:
+    Value: '|GetAtt|database|Endpoint.Port'
+    Description: DB Port
+  dbUser:
+    Value: '|Ref|dbUser'
+    Description: DB user
+  dbName:
+    Value: '|Ref|dbName'
+    Description: DB name
+  dbSecurityGroup:
+    Value: '|GetAtt|dbSecurityGroup|GroupId'
+    Description: Id of the DB security group. Use it in the application stack to add an ingress rule for the EC2 instances.
+
