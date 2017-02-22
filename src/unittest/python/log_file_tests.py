@@ -1,5 +1,6 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
+from tempfile import NamedTemporaryFile
 import unittest2 as unittest
 from mock import patch, Mock
 
@@ -19,20 +20,19 @@ class Test(unittest.TestCase):
         self.assertEqual('foo', l.name)
         self.assertEqual('instance', l.instance_name)
 
-    @patch('rds_log_dog.rds_utils.get_full_db_logfile_data')
-    def test_read_from_rds(self, get_full_db_logfile_data):
+    @patch('rds_log_dog.rds_utils.download')
+    def test_rds_download(self, download):
         l = RdsLogFile('foofile', 'instance')
-        get_full_db_logfile_data.return_value = 'data'
-        result = l.read()
-        get_full_db_logfile_data.assert_called_with('instance', 'foofile')
-        self.assertEqual('data', result)
-
-    @patch('rds_log_dog.s3_utils.write_data_to_object')
-    def test_write_to_s3(self, write_data_to_object):
+        with NamedTemporaryFile() as f:
+            l.download(f)
+            download.assert_called_with('instance', 'foofile', f)
+        
+    @patch('rds_log_dog.s3_utils.copy')
+    def test_s3_write(self, copy):
         l = S3LogFile('name', 'bucket', 'prefix')
-        l.write('data')
-        write_data_to_object.assert_called_with(
-            'bucket', 'prefix/name', 'data')
+        with NamedTemporaryFile() as f:
+            l.write(f)
+            copy.assert_called_with( 'bucket', 'prefix/name', f)
 
     @patch('rds_log_dog.s3_utils.get_size')
     def test_fetch_size_s3(self, get_size):

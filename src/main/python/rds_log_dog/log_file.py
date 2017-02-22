@@ -38,8 +38,8 @@ class S3LogFile(LogFile):
     def fetch_size(self):
         self.size = s3.get_size(self.bucket, self.get_dst_key())
 
-    def write(self, data):
-        s3.write_data_to_object(self.bucket, self.get_dst_key(), data)
+    def write(self, fileobj):
+        s3.copy(self.bucket, self.get_dst_key(), fileobj)
 
 
 class RdsLogFile(LogFile):
@@ -51,5 +51,6 @@ class RdsLogFile(LogFile):
     def fetch_size(self):
         self.size = rds.get_size(self.instance_name, self.name)
 
-    def read(self):
-        return rds.get_full_db_logfile_data(self.instance_name, self.name)
+    def download(self, file_handle):
+        return rds.download(self.instance_name, self.name, file_handle)
+

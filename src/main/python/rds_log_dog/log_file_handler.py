@@ -1,5 +1,7 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
+from tempfile import NamedTemporaryFile
+
 import rds_log_dog.s3_utils as s3
 import rds_log_dog.rds_utils as rds
 from rds_log_dog.log_file import S3LogFile, RdsLogFile
@@ -40,5 +42,7 @@ class LogFileHandler(object):
 
     def copy(self, src):
         dst = self.get_s3logfile(src.name)
-        dst.write(src.read())
+        with NamedTemporaryFile() as f:
+            src.download(f)
+            dst.write(f)
         return dst

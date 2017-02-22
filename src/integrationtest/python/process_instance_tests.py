@@ -57,7 +57,7 @@ class Test(unittest.TestCase):
         logger.debug('truncate size of {}'.format(lf.name))
         lf.fetch_size()
         size = lf.size
-        lf.write('foooooo')
+        s3.write_data_to_object(lf.bucket, lf.get_dst_key(), 'foooooo')
         lf.fetch_size()
         logger.debug('new size of {} is {}'.format(lf.name, lf.size))
         self.assertNotEqual(size, lf.size)

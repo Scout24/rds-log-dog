@@ -7,7 +7,7 @@ from moto import mock_s3
 from tempfile import NamedTemporaryFile
 
 from rds_log_dog.s3_utils import (
-    list_folders, get_top_level_folder_under_prefix, write_data_to_object, get_size, get_files)
+    list_folders, get_top_level_folder_under_prefix, write_data_to_object, get_size, get_files, copy)
 
 
 class TestS3Utils(unittest.TestCase):
@@ -109,6 +109,15 @@ class TestS3Utils(unittest.TestCase):
 
         # must not throw an exception
         self.s3.head_object(Bucket='bucket', Key='foo')
+ 
+    @mock_s3
+    def test_copy(self):
+        self.s3.create_bucket(Bucket='bucket')
+        with NamedTemporaryFile() as f:
+            f.write('foo')
+            file_size = os.path.getsize(f.name)
+            copy('bucket', 'foo', f)
+        self.assertEqual(file_size, get_size('bucket', 'foo'))
 
     @mock_s3
     def test_get_size(self):

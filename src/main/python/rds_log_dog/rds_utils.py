@@ -16,7 +16,7 @@ def describe_logfiles_of_instance(name):  # pragma: no cover (covered by it)
     return []
 
 
-def get_full_db_logfile_data(instance_name, logfile_name):  # pragma: no cover (covered by it)
+def download(instance_name, logfile_name, fh):  # pragma: no cover (covered by it)
     client = boto3.client('rds')
     next_position_marker = '0'
     logfile_data = ''
@@ -27,11 +27,11 @@ def get_full_db_logfile_data(instance_name, logfile_name):  # pragma: no cover (
         if 'LogFileData' not in response:
             logger.error('no LogFileData in logfile portion response.\n{}'.format(
                 json.dumps(response)))
-        logfile_data += response['LogFileData']
+        fh.write(response['LogFileData'])
         if not response['AdditionalDataPending']:
             break
         next_position_marker = response['Marker']
-    return logfile_data
+    return 
 
 
 def get_size(instance_name, logfile_name):
