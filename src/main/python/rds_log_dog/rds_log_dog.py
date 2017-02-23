@@ -25,8 +25,11 @@ class RDSLogDog(object):  # pragma: no cover
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(int(level))
+        logger.debug('set loglevel to DEBUG')
         # disable botocore logging in debug level
         logger = logging.getLogger('botocore')
+        logger.setLevel(logging.WARN)
+        logger = logging.getLogger('s3transfer')
         logger.setLevel(logging.WARN)
 
     def sync_logfiles(self, logfiles, logfilehandler):
