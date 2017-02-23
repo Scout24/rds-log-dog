@@ -33,7 +33,7 @@ class RDSLogDog(object):  # pragma: no cover
 
     def sync_logfiles(self, logfiles, logfilehandler):
         for logfile in logfiles:
-            logger.debug("copying {} ...".format(logfile))
+            logger.info("copying {} ({})...".format(logfile.name, logfile.size))
             logfilehandler.copy(logfile)
 
     def discover_logfiles_to_copy(self, logfilehandler):
