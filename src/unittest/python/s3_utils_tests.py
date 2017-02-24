@@ -116,7 +116,7 @@ class TestS3Utils(unittest.TestCase):
         with NamedTemporaryFile() as f:
             f.write('foo')
             file_size = os.path.getsize(f.name)
-            copy('bucket', 'foo', f)
+            copy('bucket', 'foo', f.name)
         self.assertEqual(file_size, get_size('bucket', 'foo'))
 
     @mock_s3

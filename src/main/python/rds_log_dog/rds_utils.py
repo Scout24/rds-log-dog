@@ -15,27 +15,54 @@ def describe_logfiles_of_instance(name):  # pragma: no cover (covered by it)
         return response['DescribeDBLogFiles']
     return []
 
+def metric(name, value=1):
+    # DogStatsD format (https://www.datadoghq.com/blog/statsd/)
+    # MONITORING|unix_epoch_timestamp|metric_value|metric_type|my.metric.name|#tag1:value,tag2
+    import time
+    print('MONITORING|{ts}|{value}|{type}|rds-log-dog.{name}|'.format(
+        ts=int(time.time()), type='count', name=name, value=value ))
 
-def download(instance_name, logfile_name, fh):  # pragma: no cover (covered by it)
+def download(instance_name, logfile_name, filename):  # pragma: no cover (covered by it)
     client = boto3.client('rds')
     next_position_marker = '0'
     logfile_data = ''
-    while True:
-        response = client.download_db_log_file_portion(
-            DBInstanceIdentifier=instance_name,
-            LogFileName=logfile_name, Marker=next_position_marker)
-        if 'LogFileData' not in response:
-            logger.error('no LogFileData in logfile portion response.\n{}'.format(
-                json.dumps(response)))
-        fh.write(response['LogFileData'])
-        if not response['AdditionalDataPending']:
-            break
-        next_position_marker = response['Marker']
-    return 
+    retries = 0
+    max_retries = 3
+    size = 0
+    fetch_this_number_of_lines = 0
+    with open(filename, 'w') as f:
+        while True:
+            if retries > max_retries:
+                metric('retries_exceeded')
+                logger.error(
+                        'Retry count ({}) exceeding max retries ({}). Gave up.'.format(
+                            retries, max_retries))
+                break
+            response = client.download_db_log_file_portion(
+                DBInstanceIdentifier=instance_name,
+                LogFileName=logfile_name, Marker=next_position_marker, 
+                NumberOfLines=fetch_this_number_of_lines)
+            if 'LogFileData' not in response:
+                logger.warn('no LogFileData in logfile portion response. Retrying.')
+                retries += 1
+                continue # means retry
+            data = response['LogFileData']
+            if data[-35:].strip().endswith('[Your log message was truncated]'):
+                metric('truncated') 
+                fetch_this_number_of_lines = data.count('\n')-2
+                retries += 1
+                continue # means retry
+            f.write(data)
+            size += len(data)
+            if not response['AdditionalDataPending']:
+                break
+            next_position_marker = response['Marker']
+            fetch_this_number_of_lines = 0
+            retries = 0
+    metric('rds_log_size', size)
 
 
 def get_size(instance_name, logfile_name):
     for logfile in describe_logfiles_of_instance(instance_name):
         if logfile['LogFileName'] == logfile_name:
             return logfile['Size']
-    return

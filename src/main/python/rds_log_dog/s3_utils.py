@@ -49,9 +49,9 @@ def write_data_to_object(bucket, object_key, data):
         Key=object_key,
         Body=data)
 
-def copy(bucket, object_key, fileobj):
+def copy(bucket, object_key, filename):
     client = boto3.client('s3')
-    client.upload_fileobj(fileobj, bucket, object_key)
+    client.upload_file(filename, bucket, object_key)
 
 def setup_s3_destination(dst_bucket, dst_prefix_instance):
     client = boto3.client('s3')

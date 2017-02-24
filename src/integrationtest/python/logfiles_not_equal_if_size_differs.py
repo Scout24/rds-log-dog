@@ -35,6 +35,9 @@ class TestLogFile(unittest.TestCase):
         self.logfile_name = utils.choose_one_random_logfile_does_not_exists_in_s3(
             self.rds_instance.name, self.bucket_name)
 
+    def test_logfile_rds_has_same_size_in_local(self):
+        src = RdsLogFile(self.logfile_name, self.rds_instance.name)
+
     def test_logfile_equals_size(self):
         src = RdsLogFile(self.logfile_name, self.rds_instance.name)
         dst = self.lfh.copy(src)
