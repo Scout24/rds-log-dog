@@ -4,7 +4,7 @@ Parameters:
   logKeepTimeInDays:
       Type: Number
       Description: number of days, after which the logs are purged (to free space)
-      Default: 30
+      Default: 90
 
 Resources:
     bucket:

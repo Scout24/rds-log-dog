@@ -9,4 +9,4 @@ stacks:
     rds-log-dog-s3:
         template-url: templates/s3.yaml
         parameters:
-            logKeepTimeInDays: 30
+            logKeepTimeInDays: 90
