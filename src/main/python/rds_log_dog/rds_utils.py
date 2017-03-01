@@ -19,13 +19,15 @@ def metric(name, value=1):
     # DogStatsD format (https://www.datadoghq.com/blog/statsd/)
     # MONITORING|unix_epoch_timestamp|metric_value|metric_type|my.metric.name|#tag1:value,tag2
     import time
-    print('MONITORING|{ts}|{value}|{type}|rds-log-dog.{name}|'.format(
+    print('MONITORING|{ts}|{value}|{type}|rds_log_dog.{name}|'.format(
         ts=int(time.time()), type='count', name=name, value=value ))
+
+_DEBUG_TOTAL_WRITTEN_BYTES = 0
 
 def download(instance_name, logfile_name, filename):  # pragma: no cover (covered by it)
     client = boto3.client('rds')
     next_position_marker = '0'
-    logfile_data = ''
+    data = ''
     retries = 0
     max_retries = 3
     size = 0
@@ -52,8 +54,11 @@ def download(instance_name, logfile_name, filename):  # pragma: no cover (covere
                 fetch_this_number_of_lines = data.count('\n')-2
                 retries += 1
                 continue # means retry
+            logger.debug('going to write {} bytes to disc. Already written: {} bytes'.format(len(data),size))
             f.write(data)
             size += len(data)
+            global _DEBUG_TOTAL_WRITTEN_BYTES 
+            _DEBUG_TOTAL_WRITTEN_BYTES += len(data)
             if not response['AdditionalDataPending']:
                 break
             next_position_marker = response['Marker']
