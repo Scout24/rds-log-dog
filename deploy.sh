@@ -193,7 +193,7 @@ if [ ${DEPLOY_CODE} == true ]; then
     (cd cfn/; cf sync -y ${FUNCTION_STACK_NAME}.yaml -p ${FUNCTION_STACK_NAME}.s3key=${S3_KEY_FOR_LAMBDA})
 
     if [ ${PERSONAL_BUILD} == true ]; then
-        print_section "prepare intergration - invoke the lambda function first time"
+        print_section "prepare integration - invoke the lambda function first time"
         GREP_FUN_NAME="${FUNCTION_STACK_NAME}-fun"
         REAL_FUN_NAME=`aws lambda list-functions | grep '"FunctionName": "'${GREP_FUN_NAME}'' | cut -d'"' -f4`
         echo "${REAL_FUN_NAME}"

@@ -92,7 +92,10 @@ class Test(unittest.TestCase):
         l2 = RdsLogFile('foo', 'instance')
         l1.size = 1
         l2.size = 2
-        self.assertNotEqual(l1, l2)
+        self.assertTrue(l1 != l2)
+        self.assertTrue(l2 != l1)
+        self.assertFalse(l1 == l2)
+        self.assertFalse(l2 == l1)
 
 
 if __name__ == '__main__':

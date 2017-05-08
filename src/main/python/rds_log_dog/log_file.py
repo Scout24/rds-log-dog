@@ -1,7 +1,9 @@
-from __future__ import print_function, absolute_import, unicode_literals, division
+from __future__ import print_function, absolute_import, division
 
 import rds_log_dog.rds_utils as rds
 import rds_log_dog.s3_utils as s3
+
+import logging
 
 
 class LogFile(object):
@@ -14,11 +16,14 @@ class LogFile(object):
         return hash(self.name)
 
     def __repr__(self):
-        return "[<LogFile|{}> :: name: {}, size: {}]".format(type(self), self.name, self.size)
+        return "%s(%r,%r)" % (self.__class__.__name__, self.name, self.size)
 
     def __eq__(self, other):
         if isinstance(other, LogFile):
+            logging.debug('logfile.__eq__: %r %r', self, other)
             return (self.name == other.name) and (self.size == other.size)
+        logging.debug(
+            'logfile.__eq__: other is not a LogFile. It is a: %r', type(other))
         return False
 
     def __ne__(self, other):
@@ -55,4 +60,3 @@ class RdsLogFile(LogFile):
 
     def download(self, filename):
         return rds.download(self.instance_name, self.name, filename)
-

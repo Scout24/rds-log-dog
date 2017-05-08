@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import print_function, absolute_import, unicode_literals, division
+from __future__ import print_function, absolute_import, division
 
 import os
 
@@ -13,6 +13,7 @@ def lambda_handler(event, context):
     config = Config(os.environ['dstBucket'])
     m = RDSLogDog(config)
     m.setup_logger(os.getenv('loglevel', 20))
+
     return m.do()
 
 if __name__ == "__main__":

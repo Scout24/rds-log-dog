@@ -1,4 +1,4 @@
-from __future__ import print_function, absolute_import, unicode_literals, division
+from __future__ import print_function, absolute_import, division
 
 import logging
 import boto3
@@ -50,6 +50,7 @@ def write_data_to_object(bucket, object_key, data):
         Body=data)
 
 def copy(bucket, object_key, filename):
+    logger.debug('copying %r to s3://%r/%r', filename, bucket, object_key)
     client = boto3.client('s3')
     client.upload_file(filename, bucket, object_key)
 
