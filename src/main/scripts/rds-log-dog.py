@@ -12,7 +12,7 @@ from rds_log_dog.cfn_utils import cfn_get_output
 def lambda_handler(event, context):
     config = Config(os.environ['dstBucket'])
     rds_log_dog = RDSLogDog(config)
-    rds_log_dog.setup_logger(os.getenv('loglevel', 20))
+    rds_log_dog.setup_logger(os.getenv('loglevel', 'INFO'))
     return rds_log_dog.run()
 
 if __name__ == "__main__":

@@ -52,7 +52,7 @@ def write_data_to_object(bucket, object_key, data):
 
 
 def copy(bucket, object_key, filename):
-    logger.debug('copying %r to s3://%r/%r', filename, bucket, object_key)
+    logger.debug('copying %r to s3://%s/%s', filename, bucket, object_key)
     client = boto3.client('s3')
     client.upload_file(filename, bucket, object_key)
 
