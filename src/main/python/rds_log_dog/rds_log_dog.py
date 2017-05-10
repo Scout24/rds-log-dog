@@ -33,22 +33,24 @@ class RDSLogDog(object):  # pragma: no cover
 
     def sync_logfiles(self, logfiles, logfilehandler):
         for logfile in logfiles:
-            logger.info("copying '{}' ({}) ...".format(logfile.name, logfile.size))
+            logger.info('copying \'%s\' (%d) ...', logfile.name, logfile.size)
             logfilehandler.copy(logfile)
 
     def discover_logfiles_to_copy(self, logfilehandler):
         files_in_s3 = logfilehandler.discover_logfiles_in_s3()
-        logger.debug("found {} files in s3://{}/{}".format(len(files_in_s3),
-                                                           logfilehandler.dst_bucket, logfilehandler.dst_prefix_instance))
+        logger.debug('found %d files in s3://%s/%s',
+                     len(files_in_s3),
+                     logfilehandler.dst_bucket,
+                     logfilehandler.dst_prefix_instance)
         files_in_rds = logfilehandler.discover_logfiles_in_rds()
-        logger.debug("found {} files in {}".format(
-            len(files_in_rds), logfilehandler.rds_instance.name))
+        logger.debug('found %d files in %s',
+                     len(files_in_rds), logfilehandler.rds_instance.name)
         logfiles = logfilehandler.logfiles_to_copy(
             files_in_rds, files_in_s3)
         return logfiles
 
     def process_instance(self, instance):
-        logger.info("processing rds-instance: '{}'".format(instance.name))
+        logger.info('processing rds-instance: \'%s\'', instance.name)
         logfilehandler = LogFileHandler(
             instance,
             self.s3_dst_bucket,
@@ -56,17 +58,16 @@ class RDSLogDog(object):  # pragma: no cover
         setup_s3_destination(logfilehandler.dst_bucket,
                              logfilehandler.dst_prefix_instance)
         logfiles_to_copy = self.discover_logfiles_to_copy(logfilehandler)
-        logger.info("going to copy {} new logfiles ...".format(
-            len(logfiles_to_copy)))
+        logger.info('going to copy %d new logfiles ...', len(logfiles_to_copy))
         self.sync_logfiles(logfiles_to_copy, logfilehandler)
         # write metric / logentry
-        logger.info("synced {} files for '{}'.".format(
-            len(logfiles_to_copy), instance.name))
+        logger.info('synced %d files for \'%s\'',
+                    len(logfiles_to_copy), instance.name)
 
-    def do(self):
+    def run(self):
         discoverer = Discoverer()
         instances = discoverer.discover()
-        logger.info("{} instances discovered.".format(len(instances)))
+        logger.info('%d instances discovered.', len(instances))
         for instance in instances:
             self.process_instance(instance)
         return 0

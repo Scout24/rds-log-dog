@@ -1,10 +1,9 @@
-from __future__ import print_function, absolute_import, unicode_literals, division
+from __future__ import print_function, absolute_import, division
 
 import unittest2 as unittest
-import os
 from mock import patch
 
-from rds_log_dog.rds_utils import get_size, describe_logfiles_of_instance
+from rds_log_dog.rds_utils import get_size
 
 
 class Test(unittest.TestCase):

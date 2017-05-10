@@ -1,10 +1,10 @@
-from __future__ import print_function, absolute_import, unicode_literals, division
+from __future__ import print_function, absolute_import, division
 
-import unittest2 as unittest
-import boto3
 import os
-from moto import mock_s3
 from tempfile import NamedTemporaryFile
+import boto3
+from moto import mock_s3
+import unittest2 as unittest
 
 from rds_log_dog.s3_utils import (
     list_folders, get_top_level_folder_under_prefix, write_data_to_object, get_size, get_files, copy)
@@ -113,20 +113,20 @@ class TestS3Utils(unittest.TestCase):
     @mock_s3
     def test_copy(self):
         self.s3.create_bucket(Bucket='bucket')
-        with NamedTemporaryFile() as f:
-            f.write('foo')
-            file_size = os.path.getsize(f.name)
-            copy('bucket', 'foo', f.name)
+        with NamedTemporaryFile() as tempfile:
+            tempfile.write('foo')
+            file_size = os.path.getsize(tempfile.name)
+            copy('bucket', 'foo', tempfile.name)
         self.assertEqual(file_size, get_size('bucket', 'foo'))
 
     @mock_s3
     def test_get_size(self):
-        with NamedTemporaryFile() as f:
-            f.write('Some Datafoo')
-            file_size = os.path.getsize(f.name)
+        with NamedTemporaryFile() as tempfile:
+            tempfile.write('Some Datafoo')
+            file_size = os.path.getsize(tempfile.name)
             self.s3.create_bucket(Bucket='foo')
             self.s3.put_object(
-                Body=f,
+                Body=tempfile,
                 Bucket='foo',
                 Key='bar'
             )

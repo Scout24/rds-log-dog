@@ -1,9 +1,8 @@
 from __future__ import print_function, absolute_import, division
 
+import logging
 import rds_log_dog.rds_utils as rds
 import rds_log_dog.s3_utils as s3
-
-import logging
 
 
 class LogFile(object):

@@ -29,7 +29,8 @@ def list_folders(bucket, prefix):
                 folders.add(folder)
     else:
         logger.warn(
-            'list on prefix: {}/{} not possible. Does it exists ?'.format(bucket, prefix))
+            'list on prefix: %s/%s not possible. Does it exists ?',
+            bucket, prefix)
     return folders
 
 
@@ -49,10 +50,12 @@ def write_data_to_object(bucket, object_key, data):
         Key=object_key,
         Body=data)
 
+
 def copy(bucket, object_key, filename):
     logger.debug('copying %r to s3://%r/%r', filename, bucket, object_key)
     client = boto3.client('s3')
     client.upload_file(filename, bucket, object_key)
+
 
 def setup_s3_destination(dst_bucket, dst_prefix_instance):
     client = boto3.client('s3')
@@ -61,8 +64,7 @@ def setup_s3_destination(dst_bucket, dst_prefix_instance):
     if 'Contents' not in response:
         client.put_object(
             Bucket=dst_bucket, Key='{}/'.format(dst_prefix_instance))
-        logger.debug('created missing s3 dest: {}'.format(
-            dst_prefix_instance))
+        logger.debug('created missing s3 dest: %s', dst_prefix_instance)
 
 
 def get_size(bucket, key):

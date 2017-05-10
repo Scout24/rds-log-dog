@@ -3,15 +3,14 @@ from __future__ import print_function, absolute_import, division
 import unittest2 as unittest
 import boto3
 import moto
-from pprint import pprint
 from rds_log_dog.cfn_utils import cfn_get_output
 
 
 class Test(unittest.TestCase):
 
     @classmethod
-    def setUpClass(self):
-        self.s3 = boto3.client('s3')
+    def setUpClass(cls):
+        cls.s3 = boto3.client('s3')
 
     @moto.mock_cloudformation
     def test_cfn_get_output(self):
