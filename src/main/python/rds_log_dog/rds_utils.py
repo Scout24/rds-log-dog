@@ -56,8 +56,8 @@ def download(instance_name, logfile_name, filename):  # pragma: no cover (covere
                 fetch_this_number_of_lines = data.count('\n')-2
                 retries += 1
                 continue  # means retry
-            logger.debug('going to write %d bytes to disc. Already written: %d bytes',
-                         len(data), size)
+            logger.debug('going to write %d bytes to disc.\
+                Already written: %d bytes', len(data), size)
             datafile.write(data)
             size += len(data)
             global _DEBUG_TOTAL_WRITTEN_BYTES
