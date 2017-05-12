@@ -2,6 +2,7 @@ from __future__ import print_function, absolute_import, division
 
 import logging
 
+from . import __version__
 from rds_log_dog.discoverer import Discoverer
 from rds_log_dog.log_file_handler import LogFileHandler
 from rds_log_dog.s3_utils import setup_s3_destination
@@ -66,6 +67,7 @@ class RDSLogDog(object):  # pragma: no cover
                      len(logfiles_to_copy), instance.name)
 
     def run(self):
+        logging.info('rds-log-dog version: %s', __version__)
         discoverer = Discoverer()
         instances = discoverer.discover()
         logging.info('%d instances discovered.', len(instances))

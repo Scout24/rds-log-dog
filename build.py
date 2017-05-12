@@ -1,5 +1,7 @@
-from pybuilder.core import use_plugin, init
 import os
+
+from pybuilder.core import use_plugin, init
+from pybuilder.vcs import VCSRevision
 
 use_plugin("python.core")
 use_plugin("python.unittest")
@@ -10,10 +12,15 @@ use_plugin("python.distutils")
 use_plugin('pypi:pybuilder_aws_plugin')
 use_plugin('python.integrationtest')
 use_plugin('python.pytddmon')
+use_plugin("filter_resources")
 
 name = "rds_log_dog"
+url = 'https://github.com/ImmobilienScout24/rds-log-dog'
+description = open("README.md").read()
+license = 'MIT'
+version = '0.2.{}'.format(VCSRevision().get_git_revision_count())
+
 default_task = ["analyze", "package"]
-version = "0.2"
 
 @init
 def set_properties(project):
@@ -30,3 +37,4 @@ def set_properties(project):
     project.set_property("integrationtest_inherit_environment", True)
     project.set_property("integrationtest_parallel", True)
 
+    project.get_property('filter_resources_glob').extend(['**/rds_log_dog/__init__.py'])
