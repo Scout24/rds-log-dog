@@ -25,6 +25,24 @@ class TestS3Utils(unittest.TestCase):
                          get_files('mybucket', 'foo'))
 
     @mock_s3
+    def test_get_files_with_more_than_max_keys(self):
+        '''
+        Test if get_files fetches all files, regardless of
+        how many files. Default behaviour only fetches 1000
+        w/o paginating the response.
+        This test depends on moto>=0.4.32
+        '''
+        expected_list_of_files = []
+        self.s3.create_bucket(Bucket='mybucket')
+        for i in range(0, 5):
+            key = 'foo/file{}'.format(i)
+            self.s3.put_object(Bucket='mybucket', Key=key)
+            expected_list_of_files.append(('{}'.format(key), 0))
+        files = get_files('mybucket', 'foo', 2)
+        print(files)
+        self.assertEqual(expected_list_of_files, files)
+
+    @mock_s3
     def test_list_s3_folders_on_non_existing_folder(self):
         self.s3.create_bucket(Bucket='mybucket')
         self.assertEqual(set(), list_folders(
@@ -109,7 +127,7 @@ class TestS3Utils(unittest.TestCase):
 
         # must not throw an exception
         self.s3.head_object(Bucket='bucket', Key='foo')
- 
+
     @mock_s3
     def test_copy(self):
         self.s3.create_bucket(Bucket='bucket')

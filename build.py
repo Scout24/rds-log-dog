@@ -13,12 +13,13 @@ use_plugin('python.pytddmon')
 
 name = "rds_log_dog"
 default_task = ["analyze", "package"]
-version = "0.1"
+version = "0.2"
 
 @init
 def set_properties(project):
     project.build_depends_on('unittest2>=0.7')
-    project.build_depends_on('moto')
+    # needed until moto>=0.4.32 is released
+    project.build_depends_on('git+https://github.com/spulec/moto.git@master#egg=moto')
     project.build_depends_on('mock')
     project.depends_on('boto3')
 

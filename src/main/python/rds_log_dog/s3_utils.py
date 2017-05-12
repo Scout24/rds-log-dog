@@ -34,13 +34,42 @@ def list_folders(bucket, prefix):
     return folders
 
 
-def get_files(bucket, prefix):
+def _get_key_and_size(list_objects_response):
+    keys = []
+    if 'Contents' in list_objects_response:
+        keys.extend(
+            [(o['Key'], o['Size']) for o in list_objects_response['Contents']])
+    else:
+        '''
+        no clue, how to deal with this and when this happens.
+        So print a warning.
+        '''
+        logger.warn('response content is empty. Check results if in doubt.')
+    return keys
+
+
+def get_files(bucket, prefix, max_files_in_response=1000):
+    '''
+    Get _all_ keys of a given bucket and prefix in s3
+
+    param max_files_in_response is for testing full fetch of all keys/files
+    if we have more keys than 1000 (which is the maximum of the api)
+    see: http://boto3.readthedocs.io/en/latest/reference/services/s3.html#S3.Client.list_objects_v2
+    '''
+    list_of_files = []
     client = boto3.client('s3')
-    response = client.list_objects_v2(
-        Bucket=bucket, Prefix=prefix)
-    if 'Contents' in response:
-        return [(o['Key'], o['Size']) for o in response['Contents']]
-    return None
+    next_continuation_token = ''
+    while True:
+        response = client.list_objects_v2(
+            Bucket=bucket, Prefix=prefix,
+            MaxKeys=max_files_in_response,
+            ContinuationToken=next_continuation_token)
+        list_of_files.extend(_get_key_and_size(response))
+        if response['IsTruncated']:
+            next_continuation_token = response['NextContinuationToken']
+        else:
+            break
+    return list_of_files
 
 
 def write_data_to_object(bucket, object_key, data):
