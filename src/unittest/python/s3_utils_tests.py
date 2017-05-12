@@ -33,13 +33,13 @@ class TestS3Utils(unittest.TestCase):
         This test depends on moto>=0.4.32
         '''
         expected_list_of_files = []
-        self.s3.create_bucket(Bucket='mybucket')
+        bucket_name = 'mybucket'
+        self.s3.create_bucket(Bucket=bucket_name)
         for i in range(0, 5):
             key = 'foo/file{}'.format(i)
-            self.s3.put_object(Bucket='mybucket', Key=key)
+            self.s3.put_object(Bucket=bucket_name, Key=key)
             expected_list_of_files.append(('{}'.format(key), 0))
-        files = get_files('mybucket', 'foo', 2)
-        print(files)
+        files = get_files(bucket_name, 'foo', 2)
         self.assertEqual(expected_list_of_files, files)
 
     @mock_s3

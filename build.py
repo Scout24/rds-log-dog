@@ -37,4 +37,4 @@ def set_properties(project):
     project.set_property("integrationtest_inherit_environment", True)
     project.set_property("integrationtest_parallel", True)
 
-    project.get_property('filter_resources_glob').extend(['**/rds_log_dog/__init__.py'])
+    #project.get_property('filter_resources_glob').extend(['**/rds_log_dog/__init__.py'])

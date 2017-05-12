@@ -58,12 +58,22 @@ def get_files(bucket, prefix, max_files_in_response=1000):
     '''
     list_of_files = []
     client = boto3.client('s3')
-    next_continuation_token = ''
+    next_continuation_token = None
     while True:
-        response = client.list_objects_v2(
-            Bucket=bucket, Prefix=prefix,
-            MaxKeys=max_files_in_response,
-            ContinuationToken=next_continuation_token)
+        if next_continuation_token is None:
+            '''
+            because we can't offer an invalid (NONE or '') ContinuationToken
+            moto will pass, but aws api will throw:
+            ClientError: An error occurred (InvalidArgument) when calling the ListObjectsV2 operation: The continuation token provided is incorrect
+            '''
+            response = client.list_objects_v2(
+                Bucket=bucket, Prefix=prefix,
+                MaxKeys=max_files_in_response)
+        else:
+            response = client.list_objects_v2(
+                Bucket=bucket, Prefix=prefix,
+                MaxKeys=max_files_in_response,
+                ContinuationToken=next_continuation_token)
         list_of_files.extend(_get_key_and_size(response))
         if response['IsTruncated']:
             next_continuation_token = response['NextContinuationToken']
