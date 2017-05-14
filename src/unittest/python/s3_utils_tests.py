@@ -159,7 +159,6 @@ class TestS3Utils(unittest.TestCase):
         with NamedTemporaryFile() as temp_file:
             temp_file.write('')
             debug_dir_of_file(temp_file)
-        self.fail()
 
 
 if __name__ == '__main__':
