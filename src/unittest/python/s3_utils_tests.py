@@ -1,13 +1,17 @@
 from __future__ import print_function, absolute_import, division
 
 import os
+import logging
 from tempfile import NamedTemporaryFile
+
 import boto3
-from moto import mock_s3
 import unittest2 as unittest
+from moto import mock_s3
 
 from rds_log_dog.s3_utils import (
-    list_folders, get_top_level_folder_under_prefix, write_data_to_object, get_size, get_files, copy)
+    debug_dir_of_file,
+    list_folders, get_top_level_folder_under_prefix,
+    write_data_to_object, get_size, get_files, copy)
 
 
 class TestS3Utils(unittest.TestCase):
@@ -149,6 +153,14 @@ class TestS3Utils(unittest.TestCase):
                 Key='bar'
             )
             self.assertEquals(file_size, get_size('foo', 'bar'))
+
+    def test__debug_file_sizes(self):
+        logging.getLogger().setLevel('DEBUG')
+        with NamedTemporaryFile() as temp_file:
+            temp_file.write('')
+            debug_dir_of_file(temp_file)
+        self.fail()
+
 
 if __name__ == '__main__':
     unittest.main()

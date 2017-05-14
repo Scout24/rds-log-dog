@@ -1,9 +1,19 @@
 from __future__ import print_function, absolute_import, division
 
+import os
 import logging
 import boto3
 
-logger = logging.getLogger(__name__)
+
+def debug_dir_of_file(the_file):
+    path = os.path.dirname(os.path.abspath(the_file.name))
+    files = [(f, os.path.getsize(os.path.join(path, f)))
+             for f in os.listdir(path)
+             if os.path.isfile(os.path.join(path, f))]
+    sum_sizes = sum(s for _, s in files)
+    logging.info('%d files in %s with %d bytes',
+                 len(files), path, sum_sizes)
+    logging.debug('%r', files)
 
 
 def get_top_level_folder_under_prefix(prefix, parent_prefix):
@@ -28,7 +38,7 @@ def list_folders(bucket, prefix):
             if folder:
                 folders.add(folder)
     else:
-        logger.warn(
+        logging.warn(
             'list on prefix: %s/%s not possible. Does it exists ?',
             bucket, prefix)
     return folders
@@ -44,7 +54,7 @@ def _get_key_and_size(list_objects_response):
         no clue, how to deal with this and when this happens.
         So print a warning.
         '''
-        logger.warn('response content is empty. Check results if in doubt.')
+        logging.warn('response content is empty. Check results if in doubt.')
     return keys
 
 
@@ -91,7 +101,7 @@ def write_data_to_object(bucket, object_key, data):
 
 
 def copy(bucket, object_key, filename):
-    logger.debug('copying %r to s3://%s/%s', filename, bucket, object_key)
+    logging.debug('copying %r to s3://%s/%s', filename, bucket, object_key)
     client = boto3.client('s3')
     client.upload_file(filename, bucket, object_key)
 
@@ -103,7 +113,7 @@ def setup_s3_destination(dst_bucket, dst_prefix_instance):
     if 'Contents' not in response:
         client.put_object(
             Bucket=dst_bucket, Key='{}/'.format(dst_prefix_instance))
-        logger.debug('created missing s3 dest: %s', dst_prefix_instance)
+        logging.debug('created missing s3 dest: %s', dst_prefix_instance)
 
 
 def get_size(bucket, key):

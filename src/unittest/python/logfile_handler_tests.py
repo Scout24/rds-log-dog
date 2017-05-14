@@ -1,7 +1,9 @@
-from __future__ import print_function, absolute_import, unicode_literals, division
+from __future__ import print_function, absolute_import, division
 
 import unittest2 as unittest
 import boto3
+import logging
+from tempfile import NamedTemporaryFile
 from moto import mock_s3
 from mock import patch
 
