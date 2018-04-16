@@ -38,3 +38,9 @@ def set_properties(project):
     project.set_property("integrationtest_parallel", True)
 
     #project.get_property('filter_resources_glob').extend(['**/rds_log_dog/__init__.py'])
+
+@init(environments = "teamcity")
+def set_properties_for_teamcity_builds(project):
+    import os
+    project.set_property("teamcity_output", True)
+    project.set_property("install_dependencies_index_url", os.environ.get("PYPIPROXY_URL"))
