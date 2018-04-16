@@ -28,13 +28,24 @@ Resources:
       PolicyDocument: 
         Version: "2012-10-17"
         Statement:
-          -
-            Effect: "Allow"
+          - Effect: "Allow"
             Action: 
-              - "s3:Get*"
-              - "s3:List*"
-              - "s3:PutObject"
-            Resource: "*" 
+              - s3:GetObject
+              - s3:PutObject
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:aws:s3:::"
+                  - Ref: s3bucket
+                  - "/*"
+          - Effect: "Allow"
+            Action:
+              - s3:ListBucket
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:aws:s3:::"
+                  - Ref: s3bucket
       Roles:
         - Ref: lambdaRole
   readLogsPolicy:
