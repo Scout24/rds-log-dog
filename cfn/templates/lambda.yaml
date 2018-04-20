@@ -40,12 +40,9 @@ Resources:
                   - "/*"
           - Effect: "Allow"
             Action:
-              - s3:ListBucket
-            Resource:
-              Fn::Join:
-                - ""
-                - - "arn:aws:s3:::"
-                  - Ref: s3bucket
+            - s3:ListBucket
+            Resource: 
+            - arn:aws:s3:::*
       Roles:
         - Ref: lambdaRole
   readLogsPolicy:
